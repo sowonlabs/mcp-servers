@@ -1,6 +1,6 @@
 {
   "name": "@sowonai/hello-mcp",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "license": "MIT",
   "description": "A Model Context Protocol (MCP) server for greeting functionality",
   "main": "dist/main.js",

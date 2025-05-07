@@ -5,7 +5,7 @@ import { AppModule } from './app.module';
 // Run with STDIO
 async function bootstrapStdio() {
   const app = await NestFactory.createApplicationContext(AppModule, {
-    logger: ['error', 'warn', 'debug', 'log'],
+    logger: false,
   });
   
   // Keep the application running
