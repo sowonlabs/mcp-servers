@@ -48,7 +48,7 @@ describe('MCP server integration test', () => {
     // Create StdioClientTransport
     transport = new StdioClientTransport({
       command: 'node',
-      args: [mainJsPath],
+      args: [mainJsPath, '--credentials', '/Users/doha/git/credentials.json'],
       cwd: path.resolve(__dirname, '..'),
     });
     
@@ -66,13 +66,26 @@ describe('MCP server integration test', () => {
       console.log('Closed MCP server connection.');
     }
   });
-  
-  it('sayHello tool returns correct greeting', async () => {
+
+  it('authenticate tool test', async () => {
     const request: CallToolRequest = {
       method: 'tools/call',
       params: {
-        name: 'hello-world',
-        arguments: { name: 'Tester' }
+        name: 'authenticate',
+        arguments: {}
+      }
+    };
+    
+    const response = await client.request(request, CallToolResultSchema);
+    console.log('Response:', response);
+  }, 600_000);
+  
+  it('checkAuthStatus tool test', async () => {
+    const request: CallToolRequest = {
+      method: 'tools/call',
+      params: {
+        name: 'checkAuthStatus',
+        arguments: {}
       }
     };
     
