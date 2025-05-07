@@ -3,13 +3,11 @@ import { AppModule } from './app.module';
 
 // Run with STDIO
 async function bootstrapStdio() {
-  const app = await NestFactory.createApplicationContext(AppModule, {
-    logger: ['error', 'warn', 'debug', 'log'],
-  });
+  const enableLogging = process.argv.includes('--log') || process.argv.includes('-l');
   
-  // Keep the application running
-  // Allow communication via STDIO without exiting
-  console.log('MCP server started in STDIO mode.');
+  const app = await NestFactory.createApplicationContext(AppModule, {
+    logger: enableLogging ? ['error', 'warn', 'debug', 'log'] : false
+  });
   
   // Error handling
   process.on('uncaughtException', (err) => {
