@@ -15,7 +15,8 @@
     "outDir": "dist",
     "rootDir": "src",
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "resolveJsonModule": true
   },
   "include": ["src", "tests"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]

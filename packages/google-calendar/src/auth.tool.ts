@@ -13,7 +13,7 @@ export class AuthTool {
   @Tool({
     name: 'authenticate',
     description:
-      'A tool for Google authentication. This tool authenticates users using Google authentication.',
+      'A tool for Google Calendar authentication. This tool authenticates users for Google Calendar access.',
   })
   async authenticate(context: Context) {
     this.logger.log('Starting Google authentication process');
@@ -32,7 +32,7 @@ export class AuthTool {
 
   @Tool({
     name: 'checkAuthStatus',
-    description: 'Check the current Google authentication status of the user.',
+    description: 'Check the current Google Calendar authentication status of the user.',
     parameters: z.object({}),
   })
   async checkAuthStatus(params: Record<string, never>, context: Context) {

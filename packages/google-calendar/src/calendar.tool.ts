@@ -13,7 +13,7 @@ export class CalendarTool {
 
   @Tool({
     name: 'listCalendars',
-    description: 'Retrieves the list of Google calendars for the user.',
+    description: 'Retrieves the list of Google calendars for the user. This tool lists all calendars connected to your Google Calendar account.',
     parameters: z.object({}),
   })
   async listCalendars(params: Record<string, never>, context: Context) {
@@ -71,7 +71,7 @@ export class CalendarTool {
   
   @Tool({
     name: 'listEvents',
-    description: 'Retrieves events from the specified Google calendar. If no time range is specified, it retrieves events for the next 7 days from the current date.',
+    description: 'Retrieves events from the specified Google calendar. This tool fetches events from your Google Calendar. If no time range is specified, it retrieves events for the next 7 days from the current date.',
     parameters: z.object({
       calendarId: z.string().describe('The calendar ID to retrieve events from (default: primary)').default('primary'),
       timeMin: z.string().describe('The start time for retrieving events (ISO format date string)').optional(),
@@ -97,7 +97,7 @@ export class CalendarTool {
         orderBy: 'startTime',
       };
       
-      // Set default time range if not specified (7 days before and after current date)
+      // Set default time range (-7 days to +7 days)
       const now = new Date();
       if (!params.timeMin) {
         const min = new Date(now);

@@ -1,12 +1,12 @@
 {
-  "name": "@sowonai/google-calendar-mcp",
-  "version": "0.1.8",
+  "name": "@sowonai/mcp-google-calendar",
+  "version": "0.1.1",
   "license": "MIT",
   "description": "A Model Context Protocol (MCP) server for Google Calendar integration",
   "main": "dist/main.js",
   "module": "dist/main.js",
   "bin": {
-    "google-calendar-mcp": "dist/main.js"
+    "mcp-google-calendar": "dist/main.js"
   },
   "exports": {
     ".": {
@@ -23,17 +23,13 @@
   },
   "scripts": {
     "build": "nest build",
-    "build:dev": "nest build",
-    "format": "prettier --write \"src/**/*.ts\"",
     "start": "node dist/main.js",
     "dev": "nest start --watch -- --log",
     "debug": "nest start --debug --watch -- --log",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "prepack": "npm run build && echo '#!/usr/bin/env node' | cat - dist/main.js > temp && mv temp dist/main.js && chmod +x dist/main.js",
-    "auth": "node dist/main.js auth",
-    "dev:auth": "nest start --watch -- auth"
+    "prepack": "npm run build && echo '#!/usr/bin/env node' | cat - dist/main.js > temp && mv temp dist/main.js && chmod +x dist/main.js"
   },
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",
@@ -43,7 +39,6 @@
     "@nestjs/platform-express": "^11.0.5",
     "@rekog/mcp-nest": "^1.5.1",
     "googleapis": "^148.0.0",
-    "nestjs-command": "^3.1.5",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "yargs": "^17.7.2",
@@ -65,5 +60,9 @@
     "webpack": "^5.99.7",
     "webpack-cli": "^6.0.1",
     "webpack-node-externals": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sowonlabs/mcp-servers.git"
   }
 }

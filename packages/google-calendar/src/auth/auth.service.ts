@@ -13,27 +13,27 @@ export class AuthService {
   }
 
   /**
-   * 자격 증명 파일 경로를 가져옵니다.
-   * 환경 변수에서 경로를 확인하거나 기본 경로를 사용합니다.
-   * @param credentialsFilename 자격 증명 파일 이름 (기본값: credentials.json)
-   * @returns 자격 증명 파일의 전체 경로
+   * Get the credentials file path.
+   * Checks the environment variable or uses the default path.
+   * @param credentialsFilename Name of the credentials file (default: credentials.json)
+   * @returns Full path to the credentials file
    */
   getCredentialsPath(credentialsFilename: string = 'credentials.json'): string {
-    // 기본 경로 설정
+    // Set default path
     let credentialsPath = path.join(process.cwd(), credentialsFilename);
     
-    // 환경 변수에 설정된 경로가 있으면 사용
+    // Use path from environment variable if set
     if (process.env.GOOGLE_CREDENTIALS_PATH) {
       credentialsPath = process.env.GOOGLE_CREDENTIALS_PATH;
     }
     
-    this.logger.debug(`자격 증명 파일 경로: ${credentialsPath}`);
+    this.logger.debug(`Credentials file path: ${credentialsPath}`);
     
-    // 파일 존재 여부 확인
+    // Check if file exists
     if (!fs.existsSync(credentialsPath)) {
-      const error = new Error(`자격 증명 파일을 찾을 수 없습니다: ${credentialsPath}`);
+      const error = new Error(`Credentials file not found: ${credentialsPath}`);
       this.logger.error(error.message);
-      this.logger.error('Google Cloud Console에서 OAuth 2.0 자격 증명을 생성하고 credentials.json 파일을 다운로드하세요.');
+      this.logger.error('Please create OAuth 2.0 credentials in Google Cloud Console and download the credentials.json file.');
       throw error;
     }
     
@@ -42,7 +42,7 @@ export class AuthService {
 
   async authenticate(scopes: string[], credentialsFilename: string = 'credentials.json') {
     try {
-      // 자격 증명 파일 경로 가져오기
+      // Get credentials file path
       const credentials = this.getCredentialsPath(credentialsFilename);
       
       const auth = await authenticate({
@@ -50,12 +50,12 @@ export class AuthService {
         scopes: scopes,
       });
       
-      // 토큰 저장
+      // Save token
       await this.tokenRepository.saveToken(auth.credentials);
-      this.logger.log('인증이 성공적으로 완료되었습니다.');
+      this.logger.log('Authentication completed successfully.');
       return auth;
     } catch (error) {
-      this.logger.error('인증 중 오류가 발생했습니다:', error);
+      this.logger.error('An error occurred during authentication:', error);
       throw error;
     }
   }
@@ -85,33 +85,33 @@ export class AuthService {
   }
 
   async getCalendarClient(): Promise<calendar_v3.Calendar> {
-    // 인증 상태 확인
+    // Check authentication status
     const isAuthenticated = await this.isAuthenticated();
     if (!isAuthenticated) {
-      throw new Error('사용자가 인증되지 않았습니다. authenticate 도구를 먼저 실행하세요.');
+      throw new Error('User is not authenticated. Please run the authenticate tool first.');
     }
     
-    // 토큰 로드
+    // Load token
     const token = await this.tokenRepository.loadToken();
     
-    // 자격 증명 파일 경로 가져오기
+    // Get credentials file path
     const credentialsPath = this.getCredentialsPath();
     
-    // credentials.json 파일 읽기
+    // Read credentials.json file
     const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
     const { client_id, client_secret, redirect_uris } = credentials.installed || credentials.web;
     
-    // OAuth2 클라이언트 생성
+    // Create OAuth2 client
     const oauth2Client = new google.auth.OAuth2(
       client_id,
       client_secret,
       redirect_uris[0]
     );
     
-    // 저장된 토큰 설정
+    // Set saved token
     oauth2Client.setCredentials(token);
     
-    // 캘린더 클라이언트 생성 및 반환
+    // Create and return calendar client
     return google.calendar({ version: 'v3', auth: oauth2Client });
   }
 }
