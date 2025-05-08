@@ -1,6 +1,6 @@
 {
   "name": "@sowonai/google-calendar-mcp",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "license": "MIT",
   "description": "A Model Context Protocol (MCP) server for Google Calendar integration",
   "main": "dist/main.js",
@@ -26,8 +26,8 @@
     "build:dev": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "node dist/main.js",
-    "dev": "nest start --watch",
-    "debug": "nest start --debug --watch",
+    "dev": "nest start --watch -- --log",
+    "debug": "nest start --debug --watch -- --log",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",

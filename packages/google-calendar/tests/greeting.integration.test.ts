@@ -93,6 +93,19 @@ describe('MCP server integration test', () => {
     console.log('Response:', response);
   }, 600_000);
 
+  it('listCalendars tool test', async () => {
+    const request: CallToolRequest = {
+      method: 'tools/call',
+      params: {
+        name: 'listCalendars',
+        arguments: {}
+      }
+    };
+    
+    const response = await client.request(request, CallToolResultSchema);
+    console.log('Response:', response);
+  }, 600_000);
+
   it('resource list test', async () => {
     const response = await client.listResources();
     console.log('Response:', response);
