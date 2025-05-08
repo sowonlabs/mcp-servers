@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { authenticate } from '@google-cloud/local-auth';
 import { TokenRepository } from './token.repository';
-import { google } from 'googleapis';
+import { google, calendar_v3 } from 'googleapis';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -12,26 +12,39 @@ export class AuthService {
   constructor(private readonly tokenRepository: TokenRepository) {
   }
 
-  async authenticate(scopes: string[], credentialsFilename: string = 'credentials.json') {
-    // Check credentials file path from environment variables
-    let credentials = path.join(process.cwd(), credentialsFilename);
+  /**
+   * Get the credentials file path.
+   * Checks the environment variable or uses the default path.
+   * @param credentialsFilename Name of the credentials file (default: credentials.json)
+   * @returns Full path to the credentials file
+   */
+  getCredentialsPath(credentialsFilename: string = 'credentials.json'): string {
+    // Set default path
+    let credentialsPath = path.join(process.cwd(), credentialsFilename);
     
-    // Use the path set in environment variables if available
+    // Use path from environment variable if set
     if (process.env.GOOGLE_CREDENTIALS_PATH) {
-      credentials = process.env.GOOGLE_CREDENTIALS_PATH;
+      credentialsPath = process.env.GOOGLE_CREDENTIALS_PATH;
     }
     
-    this.logger.debug(`Credentials file path to be used: ${credentials}`);
+    this.logger.debug(`Credentials file path: ${credentialsPath}`);
     
-    // Check if credentials.json file exists
-    if (!fs.existsSync(credentials)) {
-      const error = new Error(`Unable to find credentials.json file. The file should be at: ${credentials}`);
+    // Check if file exists
+    if (!fs.existsSync(credentialsPath)) {
+      const error = new Error(`Credentials file not found: ${credentialsPath}`);
       this.logger.error(error.message);
-      this.logger.error('Create OAuth 2.0 credentials in Google Cloud Console and download the credentials.json file.');
+      this.logger.error('Please create OAuth 2.0 credentials in Google Cloud Console and download the credentials.json file.');
       throw error;
     }
     
+    return credentialsPath;
+  }
+
+  async authenticate(scopes: string[], credentialsFilename: string = 'credentials.json') {
     try {
+      // Get credentials file path
+      const credentials = this.getCredentialsPath(credentialsFilename);
+      
       const auth = await authenticate({
         keyfilePath: credentials,
         scopes: scopes,
@@ -42,7 +55,7 @@ export class AuthService {
       this.logger.log('Authentication completed successfully.');
       return auth;
     } catch (error) {
-      this.logger.error('Error occurred during authentication:', error);
+      this.logger.error('An error occurred during authentication:', error);
       throw error;
     }
   }
@@ -69,5 +82,36 @@ export class AuthService {
     }
     
     return true;
+  }
+
+  async getCalendarClient(): Promise<calendar_v3.Calendar> {
+    // Check authentication status
+    const isAuthenticated = await this.isAuthenticated();
+    if (!isAuthenticated) {
+      throw new Error('User is not authenticated. Please run the authenticate tool first.');
+    }
+    
+    // Load token
+    const token = await this.tokenRepository.loadToken();
+    
+    // Get credentials file path
+    const credentialsPath = this.getCredentialsPath();
+    
+    // Read credentials.json file
+    const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
+    const { client_id, client_secret, redirect_uris } = credentials.installed || credentials.web;
+    
+    // Create OAuth2 client
+    const oauth2Client = new google.auth.OAuth2(
+      client_id,
+      client_secret,
+      redirect_uris[0]
+    );
+    
+    // Set saved token
+    oauth2Client.setCredentials(token);
+    
+    // Create and return calendar client
+    return google.calendar({ version: 'v3', auth: oauth2Client });
   }
 }
