@@ -1,6 +1,6 @@
 # @sowonai/mcp-google-calendar
 
-A Model Context Protocol (MCP) server that provides greeting functionality.
+A Model Context Protocol (MCP) server for Google Calendar integration.
 
 ## What is MCP?
 
@@ -29,11 +29,6 @@ MCP (Model Context Protocol) is an open protocol that allows AI assistants, such
     }
   }
 }
-```
-
-## Installation
-```shell
-npm install
 ```
 
 ## Creating a Google Cloud Project and Obtaining Credentials
