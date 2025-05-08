@@ -7,9 +7,14 @@ A Model Context Protocol (MCP) server that provides greeting functionality.
 ```
 {
   "mcpServers": {
-    "@sowonai/hello-mcp": {
+    "@sowonai/google-calendar-mcp": {
       "command": "npx",
-      "args": ["-y", "@sowonai/hello-mcp"]
+      "args": [
+        "-y", 
+        "@sowonai/google-calendar-mcp", 
+        "--credentials", 
+        "/path/to/credentials.json"
+      ]
     }
   }
 }
@@ -27,7 +32,7 @@ npm run dev
 
 ## npx usage
 ```shell
-npx @sowonai/hello-mcp
+npx @sowonai/google-calendar-mcp
 ```
 
 ## Test usage (using jsonrpc)
@@ -39,14 +44,4 @@ npx @sowonai/hello-mcp
 
 ```json
 {"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"checkAuthStatus","arguments":{}}}
-```
-
-### list resources
-```json
-{"jsonrpc":"2.0","id":"2","method":"resources/list","params":{}}
-```
-
-### read resource
-```json
-{"jsonrpc":"2.0","id":"3","method":"resources/read","params":{"uri":"mcp://hello-world/Doha Park"}}
 ```

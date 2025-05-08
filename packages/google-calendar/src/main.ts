@@ -26,7 +26,6 @@ const args = yargs(hideBin(process.argv))
 // Set credentials path as environment variable if provided
 if (args.credentials) {
   process.env.GOOGLE_CREDENTIALS_PATH = args.credentials;
-  logger.log(`Credentials path set to: ${args.credentials}`);
 }
 
 // Run in STDIO mode
@@ -34,7 +33,6 @@ async function bootstrapStdio() {
   const enableLogging = args.log || false;
   
   try {
-    logger.log('Initializing Google Calendar MCP server...');
     const app = await NestFactory.createApplicationContext(AppModule, {
       logger: enableLogging ? ['error', 'warn', 'debug', 'log'] : false
     });
