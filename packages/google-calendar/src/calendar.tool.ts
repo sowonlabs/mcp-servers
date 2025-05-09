@@ -175,6 +175,162 @@ export class CalendarTool {
     }
   }
   
+  @Tool({
+    name: 'createEvent',
+    description: 'Creates a new event in the specified Google Calendar. This tool allows you to schedule events with various details such as title, location, description, and time information.',
+    parameters: z.object({
+      calendarId: z.string().describe('The calendar ID to create the event in (default: primary)').default('primary'),
+      summary: z.string().describe('The title or summary of the event'),
+      location: z.string().describe('The location of the event').optional(),
+      description: z.string().describe('A detailed description of the event').optional(),
+      start: z.object({
+        dateTime: z.string().describe('The start time of the event in ISO format (e.g., "2025-05-10T09:00:00+09:00")'),
+        timeZone: z.string().describe('The timezone for the start time (e.g., "Asia/Seoul")').optional(),
+      }),
+      end: z.object({
+        dateTime: z.string().describe('The end time of the event in ISO format (e.g., "2025-05-10T10:00:00+09:00")'),
+        timeZone: z.string().describe('The timezone for the end time (e.g., "Asia/Seoul")').optional(),
+      }),
+      attendees: z.array(
+        z.object({
+          email: z.string().describe('Email address of the attendee'),
+          displayName: z.string().describe('Display name of the attendee').optional(),
+        })
+      ).describe('List of attendees for the event').optional(),
+      reminders: z.object({
+        useDefault: z.boolean().describe('Whether to use the default reminders or not').optional(),
+        overrides: z.array(
+          z.object({
+            method: z.enum(['email', 'popup']).describe('The method of reminder notification'),
+            minutes: z.number().describe('Minutes before the event to trigger the reminder'),
+          })
+        ).describe('Custom reminder settings').optional(),
+      }).optional(),
+    }),
+  })
+  async createEvent(params: {
+    calendarId: string;
+    summary: string;
+    location?: string;
+    description?: string;
+    start: {
+      dateTime: string;
+      timeZone?: string;
+    };
+    end: {
+      dateTime: string;
+      timeZone?: string;
+    };
+    attendees?: Array<{
+      email: string;
+      displayName?: string;
+    }>;
+    reminders?: {
+      useDefault?: boolean;
+      overrides?: Array<{
+        method: 'email' | 'popup';
+        minutes: number;
+      }>;
+    };
+  }, context: Context) {
+    this.logger.log('Starting to create calendar event');
+    this.logger.log(`Calendar ID: ${params.calendarId}`);
+    this.logger.log(`Event summary: ${params.summary}`);
+    
+    try {
+      // Get calendar client
+      const calendar = await this.authService.getCalendarClient();
+      
+      // Prepare event data
+      const eventData = {
+        summary: params.summary,
+        location: params.location,
+        description: params.description,
+        start: params.start,
+        end: params.end,
+        attendees: params.attendees,
+        reminders: params.reminders || { useDefault: true },
+      };
+      
+      // Create event
+      const response = await calendar.events.insert({
+        calendarId: params.calendarId,
+        requestBody: eventData,
+        sendUpdates: 'all', // Sends email notifications to attendees
+      });
+      
+      if (!response || !response.data) {
+        throw new Error('Failed to create event: No response data received');
+      }
+      
+      this.logger.log(`Event created successfully. Event ID: ${response.data.id}`);
+      
+      // Format created event details
+      const createdEvent = response.data;
+      const start = createdEvent.start?.dateTime || createdEvent.start?.date || 'Date not specified';
+      const end = createdEvent.end?.dateTime || createdEvent.end?.date || 'Date not specified';
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      
+      // Create response message
+      let responseText = `✅ 이벤트가 성공적으로 생성되었습니다!\n\n`;
+      responseText += `📅 ${createdEvent.summary || 'No title'}\n`;
+      responseText += `🕒 ${this.formatDateTime(startDate)} - ${this.formatDateTime(endDate)}\n`;
+      
+      if (createdEvent.location) {
+        responseText += `📍 ${createdEvent.location}\n`;
+      }
+      
+      if (createdEvent.description) {
+        responseText += `📝 ${createdEvent.description}\n`;
+      }
+      
+      if (createdEvent.attendees && createdEvent.attendees.length > 0) {
+        responseText += `👥 참석자: ${createdEvent.attendees.map(a => a.email).join(', ')}\n`;
+      }
+      
+      if (createdEvent.htmlLink) {
+        responseText += `\n🔗 이벤트 링크: ${createdEvent.htmlLink}\n`;
+      }
+      
+      return {
+        content: [
+          { 
+            type: 'text', 
+            text: responseText
+          }
+        ],
+        event: {
+          id: createdEvent.id,
+          summary: createdEvent.summary,
+          description: createdEvent.description,
+          location: createdEvent.location,
+          start: createdEvent.start,
+          end: createdEvent.end,
+          status: createdEvent.status,
+          htmlLink: createdEvent.htmlLink,
+          created: createdEvent.created,
+          updated: createdEvent.updated,
+          organizer: createdEvent.organizer,
+          attendees: createdEvent.attendees
+        }
+      };
+    } catch (error: any) {
+      this.logger.error('Error creating calendar event:', error);
+      const errorMessage = error.message || 'An unknown error occurred';
+      
+      return {
+        content: [
+          { 
+            type: 'text', 
+            text: `이벤트 생성 중 오류가 발생했습니다: ${errorMessage}`
+          }
+        ],
+        error: errorMessage
+      };
+    }
+  }
+  
   /**
    * Format event list to readable text format
    */
