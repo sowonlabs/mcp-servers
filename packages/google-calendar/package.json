@@ -1,6 +1,6 @@
 {
   "name": "@sowonai/mcp-google-calendar",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "MIT",
   "description": "A Model Context Protocol (MCP) server for Google Calendar integration",
   "main": "dist/main.js",

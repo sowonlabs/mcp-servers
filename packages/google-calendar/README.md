@@ -32,6 +32,62 @@ MCP (Model Context Protocol) is an open protocol that allows AI assistants, such
 }
 ```
 
+### SowonFlow Integration Example
+
+You can utilize the Google Calendar MCP in a YAML-based workflow using:
+
+```javascript
+const workflow = new Workflow({
+  mainWorkflow: `
+version: "agentflow/v1"
+kind: "WorkflowSpec"
+metadata:
+  name: "Google Calendar Assistant"
+  description: "Google calendar MCP usage example"
+  version: "0.1.0"
+
+agents:
+  - id: "calendar_agent"
+    inline:
+      type: "agent"
+      model: "openai/gpt-4.1-mini"
+      system_prompt: |
+        You are calendar assistant.
+        Answer the user's questions using MCP tools. (MCP tools has prefix "mcp__")
+        
+        <information>
+        Current time: '${new Date().toISOString()}'
+        </information>
+
+      mcp: ["mcp-google-calendar"]
+        
+nodes:
+  start:
+    type: "agent_task"
+    agent: "calendar_agent"
+    next: "end"
+  
+  end:
+    type: "end"
+`,
+  mcpServers: {
+    "mcp-google-calendar": {
+      "command": "npx",
+      "args": ["-y", "@sowonai/google-calendar-mcp", "--credentials", "/path/to/credentials.json"]
+    }
+  }
+});
+
+// Ask a question to the workflow
+const result = await workflow.ask("Show me this week's schedule.");
+console.log(result.content);
+```
+
+This example defines an agent in the workflow that can answer schedule-related questions using the Google Calendar MCP server. SowonFlow is an AI-based workflow engine that interprets and executes workflows defined in YAML.
+
+### What is SowonFlow?
+SowonFlow is a workflow product designed to conveniently utilize LLMs, featuring embedded workflows and lightweight workflows as its key characteristics. It can be used to create assistants available on Slack within the SowonAI service, and SowonFlow can also be embedded into your company's services. It can be utilized to create expert assistants that handle specific tasks on Slack.
+
 ## Creating a Google Cloud Project and Obtaining Credentials
 
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
