@@ -10,6 +10,8 @@ import {
   CallToolResultSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
+const MINUTE = 60_000;
+
 // Get current directory path
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -48,7 +50,7 @@ describe('MCP server integration test', () => {
     // Create StdioClientTransport
     transport = new StdioClientTransport({
       command: 'node',
-      args: [mainJsPath, '--credentials', '/Users/doha/git/credentials.json'],
+      args: [mainJsPath],
       cwd: path.resolve(__dirname, '..'),
     });
     
@@ -78,7 +80,7 @@ describe('MCP server integration test', () => {
     
     const response = await client.request(request, CallToolResultSchema);
     console.log('Response:', response);
-  }, 600_000);
+  }, MINUTE);
   
   it('checkAuthStatus tool test', async () => {
     const request: CallToolRequest = {
@@ -91,7 +93,7 @@ describe('MCP server integration test', () => {
     
     const response = await client.request(request, CallToolResultSchema);
     console.log('Response:', response);
-  }, 600_000);
+  }, MINUTE);
 
   it('listCalendars tool test', async () => {
     const request: CallToolRequest = {
@@ -104,16 +106,32 @@ describe('MCP server integration test', () => {
     
     const response = await client.request(request, CallToolResultSchema);
     console.log('Response:', response);
-  }, 600_000);
+  }, MINUTE);
 
-  it('resource list test', async () => {
-    const response = await client.listResources();
+  it('createEvent tool test', async () => {
+    const request: CallToolRequest = {
+      method: 'tools/call',
+      params: {
+        name: 'createEvent',
+        arguments: {
+          "calendarId": "primary",
+          "summary": "test event",
+          "location": "meeting room",
+          "description": "sowonflow meeting (created by google calendar mcp)",
+          "start": {
+            "dateTime": "2025-05-10T14:00:00+09:00",
+            "timeZone": "Asia/Seoul"
+          },
+          "end": {
+            "dateTime": "2025-05-10T15:00:00+09:00",
+            "timeZone": "Asia/Seoul"
+          }
+        }
+      }
+    };
+    
+    const response = await client.request(request, CallToolResultSchema);
     console.log('Response:', response);
-  }, 600_000);
+  }, MINUTE);
 
-  it('resource read test', async () => {
-    const response = await client.readResource({ uri: 'mcp://hello-world/Doha Park' });
-    console.log('Response:', response);
-  }, 600_000);
-  
 });

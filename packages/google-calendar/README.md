@@ -12,6 +12,7 @@ MCP (Model Context Protocol) is an open protocol that allows AI assistants, such
 - Check authentication status (checkAuthStatus)
 - List calendars (listCalendars)
 - List events (listEvents)
+- Create event (createEvent)
 
 ## MCP usage
 ### Claude desktop config (claude_desktop_config.json)
