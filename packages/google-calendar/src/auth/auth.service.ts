@@ -21,14 +21,14 @@ export class AuthService {
   getCredentialsPath(credentialsFilename: string = 'credentials.json'): string {
     // Set default path
     let credentialsPath = path.join(process.cwd(), credentialsFilename);
-    
+
     // Use path from environment variable if set
     if (process.env.GOOGLE_CREDENTIALS_PATH) {
       credentialsPath = process.env.GOOGLE_CREDENTIALS_PATH;
     }
-    
+
     this.logger.debug(`Credentials file path: ${credentialsPath}`);
-    
+
     // Check if file exists
     if (!fs.existsSync(credentialsPath)) {
       const error = new Error(`Credentials file not found: ${credentialsPath}`);
@@ -36,7 +36,7 @@ export class AuthService {
       this.logger.error('Please create OAuth 2.0 credentials in Google Cloud Console and download the credentials.json file.');
       throw error;
     }
-    
+
     return credentialsPath;
   }
 
@@ -44,12 +44,12 @@ export class AuthService {
     try {
       // Get credentials file path
       const credentials = this.getCredentialsPath(credentialsFilename);
-      
+
       const auth = await authenticate({
         keyfilePath: credentials,
         scopes: scopes,
       });
-      
+
       // Save token
       await this.tokenRepository.saveToken(auth.credentials);
       this.logger.log('Authentication completed successfully.');
@@ -69,7 +69,7 @@ export class AuthService {
     if (!token) {
       return false;
     }
-    
+
     // Check token expiration time
     if (token.expiry_date) {
       this.logger.debug(`Token expiration time: ${new Date(token.expiry_date)}`);
@@ -80,7 +80,7 @@ export class AuthService {
         return false;
       }
     }
-    
+
     return true;
   }
 
@@ -90,27 +90,27 @@ export class AuthService {
     if (!isAuthenticated) {
       throw new Error('User is not authenticated. Please run the authenticate tool first.');
     }
-    
+
     // Load token
     const token = await this.tokenRepository.loadToken();
-    
+
     // Get credentials file path
     const credentialsPath = this.getCredentialsPath();
-    
+
     // Read credentials.json file
     const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
     const { client_id, client_secret, redirect_uris } = credentials.installed || credentials.web;
-    
+
     // Create OAuth2 client
     const oauth2Client = new google.auth.OAuth2(
-      client_id,
-      client_secret,
-      redirect_uris[0]
+        client_id,
+        client_secret,
+        redirect_uris[0]
     );
-    
+
     // Set saved token
     oauth2Client.setCredentials(token);
-    
+
     // Create and return calendar client
     return google.calendar({ version: 'v3', auth: oauth2Client });
   }
