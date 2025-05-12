@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { authenticate } from '@google-cloud/local-auth';
 import { TokenRepository } from './token.repository';
-import { google, calendar_v3 } from 'googleapis';
+import { google, gmail_v1 } from 'googleapis';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -84,7 +84,7 @@ export class AuthService {
     return true;
   }
 
-  async getCalendarClient(): Promise<calendar_v3.Calendar> {
+  async getGmailClient(): Promise<gmail_v1.Gmail> {
     // Check authentication status
     const isAuthenticated = await this.isAuthenticated();
     if (!isAuthenticated) {
@@ -111,7 +111,7 @@ export class AuthService {
     // Set saved token
     oauth2Client.setCredentials(token);
 
-    // Create and return calendar client
-    return google.calendar({ version: 'v3', auth: oauth2Client });
+    // Create and return gmail client
+    return google.gmail({ version: 'v1', auth: oauth2Client });
   }
 }

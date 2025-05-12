@@ -1,12 +1,12 @@
 {
-  "name": "@sowonai/mcp-google-calendar",
-  "version": "0.1.5",
+  "name": "@sowonai/mcp-gmail",
+  "version": "0.1.0",
   "license": "MIT",
-  "description": "A Model Context Protocol (MCP) server for Google Calendar integration",
+  "description": "A Model Context Protocol (MCP) server for Gmail integration",
   "main": "dist/main.js",
   "module": "dist/main.js",
   "bin": {
-    "mcp-google-calendar": "dist/main.js"
+    "mcp-gmail": "dist/main.js"
   },
   "exports": {
     ".": {
