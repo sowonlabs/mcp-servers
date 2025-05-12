@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
 import { AuthService } from './auth/auth.service';
+import { PREFIX_TOOL_NAME } from './constants';
 
 @Injectable()
 export class AuthTool {
@@ -11,7 +12,7 @@ export class AuthTool {
   }
 
   @Tool({
-    name: 'authenticate',
+    name: `${PREFIX_TOOL_NAME}authenticate`,
     description:
       'A tool for Gmail authentication. This tool authenticates users for Gmail access.',
   })
@@ -28,12 +29,12 @@ export class AuthTool {
     this.logger.log('Gmail authentication completed successfully');
 
     return {
-      content: [{ type: 'text', text: 'Authentication completed successfully.' }],
+      content: [{ type: 'text', text: 'Gmail Authentication completed successfully.' }],
     };
   }
 
   @Tool({
-    name: 'checkAuthStatus',
+    name: `${PREFIX_TOOL_NAME}checkAuthStatus`,
     description: 'Check the current Gmail authentication status.',
     parameters: z.object({}),
   })

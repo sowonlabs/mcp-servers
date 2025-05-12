@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
 import { AuthService } from './auth/auth.service';
+import { PREFIX_TOOL_NAME } from './constants';
 import * as fs from 'fs';
 import * as stream from 'stream';
 import * as util from 'util';
@@ -18,7 +19,7 @@ export class DriveTool {
   ) {}
 
   @Tool({
-    name: 'listFiles',
+    name: `${PREFIX_TOOL_NAME}listFiles`,
     description: 'Search and retrieve files from Google Drive. By default, returns the 10 most recent files. Supports full Google Drive search query syntax including non-English text searches.\n\n' +
     '- For the "query" parameter: You can use a simple keyword like "제품 기획" or "회의록", or full Google Drive query syntax like "name contains \'document\'". Simple keywords will be automatically converted to proper search queries.\n' + 
     '- Example queries: "제품 기획" (searches for this Korean text), "회의록" (searches for meeting notes), "name contains \'budget\'", "mimeType=\'application/pdf\'", "modifiedTime > \'2023-01-01\'"\n' +
@@ -163,7 +164,7 @@ export class DriveTool {
   }
 
   @Tool({
-    name: 'getFileDetails',
+    name: `${PREFIX_TOOL_NAME}getFileDetails`,
     description: 'Get detailed information about a specific file or folder.',
     parameters: z.object({
       fileId: z.string().describe('ID of the file or folder to retrieve details for'),
@@ -231,7 +232,7 @@ export class DriveTool {
   }
 
   @Tool({
-    name: 'createFolder',
+    name: `${PREFIX_TOOL_NAME}createFolder`,
     description: 'Create a new folder in Google Drive.',
     parameters: z.object({
       name: z.string().describe('Name of the folder to create'),
@@ -299,7 +300,7 @@ export class DriveTool {
   }
 
   @Tool({
-    name: 'uploadFile',
+    name: `${PREFIX_TOOL_NAME}uploadFile`,
     description: 'Upload a file to Google Drive.',
     parameters: z.object({
       filePath: z.string().describe('Path to the local file to upload'),
@@ -393,7 +394,7 @@ export class DriveTool {
   }
 
   @Tool({
-    name: 'downloadFile',
+    name: `${PREFIX_TOOL_NAME}downloadFile`,
     description: 'Download a file from Google Drive to a local destination.',
     parameters: z.object({
       fileId: z.string().describe('ID of the file to download'),
@@ -496,7 +497,7 @@ export class DriveTool {
   }
 
   @Tool({
-    name: 'deleteFile',
+    name: `${PREFIX_TOOL_NAME}deleteFile`,
     description: 'Permanently delete a file or folder from Google Drive.',
     parameters: z.object({
       fileId: z.string().describe('ID of the file or folder to delete'),
@@ -554,7 +555,7 @@ export class DriveTool {
   }
 
   @Tool({
-    name: 'shareFile',
+    name: `${PREFIX_TOOL_NAME}shareFile`,
     description: 'Share a file or folder with specific users or make it publicly accessible.',
     parameters: z.object({
       fileId: z.string().describe('ID of the file or folder to share'),
@@ -662,7 +663,7 @@ export class DriveTool {
   }
 
   @Tool({
-    name: 'moveFile',
+    name: `${PREFIX_TOOL_NAME}moveFile`,
     description: 'Move a file or folder to a different folder in Google Drive.',
     parameters: z.object({
       fileId: z.string().describe('ID of the file or folder to move'),

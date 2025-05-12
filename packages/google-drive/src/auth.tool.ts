@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
 import { AuthService } from './auth/auth.service';
+import { PREFIX_TOOL_NAME } from './constants';
 
 @Injectable()
 export class AuthTool {
@@ -11,7 +12,7 @@ export class AuthTool {
   }
 
   @Tool({
-    name: 'authenticate',
+    name: `${PREFIX_TOOL_NAME}authenticate`,
     description:
       'A tool for Google Drive authentication. This tool authenticates users for Google Drive access.',
   })
@@ -33,7 +34,7 @@ export class AuthTool {
   }
 
   @Tool({
-    name: 'checkAuthStatus',
+    name: `${PREFIX_TOOL_NAME}checkAuthStatus`,
     description: 'Check the current Google Drive authentication status.',
     parameters: z.object({}),
   })
