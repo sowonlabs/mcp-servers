@@ -1,0 +1,141 @@
+# @sowonai/mcp-google-drive
+
+A Model Context Protocol (MCP) server for Google Drive integration.
+
+## What is MCP?
+
+MCP (Model Context Protocol) is an open protocol that allows AI assistants, such as Claude Desktop, to interact with external services and tools through a standardized interface. By running this server, you can connect Google Drive to Claude Desktop and manage your files using natural language commands.
+
+## Features
+
+- Authentication (authenticate)
+- Check authentication status (checkAuthStatus)
+- List files and folders (listFiles)
+- Get detailed file information (getFileDetails)
+- Create folders (createFolder)
+- Upload files to Google Drive (uploadFile)
+- Download files from Google Drive (downloadFile)
+- Delete files and folders (deleteFile)
+- Share files with specific users or make them publicly accessible (shareFile)
+- Move files between folders (moveFile)
+
+## MCP usage
+
+### Claude desktop config (claude_desktop_config.json)
+
+```json
+{
+  "mcpServers": {
+    "@sowonai/mcp-google-drive": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@sowonai/mcp-google-drive", 
+        "--credentials", 
+        "/path/to/credentials.json"
+      ]
+    }
+  }
+}
+```
+
+### SowonFlow Integration Example
+
+You can utilize the Google Drive MCP in a YAML-based workflow like this:
+
+```javascript
+const workflow = new Workflow({
+  mainWorkflow: `
+version: "agentflow/v1"
+kind: "WorkflowSpec"
+metadata:
+  name: "Google Drive Assistant"
+  description: "Google Drive MCP usage example"
+  version: "0.1.0"
+
+agents:
+  - id: "drive_agent"
+    inline:
+      type: "agent"
+      model: "openai/gpt-4.1-mini"
+      system_prompt: |
+        You are a Google Drive assistant that helps manage files and folders.
+        Use MCP tools to answer user questions. (MCP tools have the prefix "mcp__")
+        
+        <information>
+        Current time: '${new Date().toISOString()}'
+        </information>
+
+      mcp: ["mcp-google-drive"]
+        
+nodes:
+  start:
+    type: "agent_task"
+    agent: "drive_agent"
+    next: "end"
+  
+  end:
+    type: "end"
+`,
+  mcpServers: {
+    "mcp-google-drive": {
+      "command": "npx",
+      "args": ["-y", "@sowonai/mcp-google-drive", "--credentials", "/path/to/credentials.json"]
+    }
+  }
+});
+
+// Ask a question to the workflow
+const result = await workflow.ask("Show me my recent files");
+console.log(result.content);
+```
+
+This example defines an agent in the workflow that can answer file-related questions using the Google Drive MCP server. SowonFlow is an AI-based workflow engine that interprets and executes workflows defined in YAML.
+
+### What is SowonFlow?
+
+SowonFlow is a workflow product designed to conveniently utilize LLMs, featuring embedded workflows and lightweight workflows as its key characteristics. It can be used to create assistants available on Slack within the SowonAI service, and SowonFlow can also be embedded into your company's services. It can be utilized to create expert assistants that handle specific tasks on Slack.
+
+## Creating a Google Cloud Project and Obtaining Credentials
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a new project or select an existing one.
+3. Enable the **Google Drive API** for your project:
+   - Navigate to "APIs & Services" > "Library"
+   - Search for "Google Drive API" and enable it
+4. Go to "APIs & Services" > "Credentials".
+5. Click "Create Credentials" > "OAuth client ID".
+6. Choose **Desktop application** as the application type.
+7. Name your OAuth client and click "Create".
+8. Download the JSON file containing your credentials.
+9. Save this file as `credentials.json` and specify the path when running the MCP server.
+
+## How to Authenticate
+
+To authenticate, call the `authenticate` tool using a JSON-RPC request:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "1",
+  "method": "tools/call",
+  "params": {
+    "name": "authenticate",
+    "arguments": {}
+  }
+}
+```
+
+If you are using this server with Claude Desktop or another AI assistant, you can simply request authentication in natural language. The AI will automatically call the `authenticate` tool for you when needed.
+
+This will start the authentication process and open a browser window for Google login. After successful authentication, your token will be saved automatically.
+
+## Token Storage Location
+
+When you authenticate, your Gmail access token is securely saved in your home directory under the following path:
+
+```
+~/.sowonai/google-drvie-token.json
+```
+
+This file is used to maintain your login session. Do not share or commit this file to any public repository.
