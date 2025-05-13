@@ -1,16 +1,82 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
 import { AuthService } from './auth/auth.service';
+import { AuthGuard } from './auth/auth.guard';
+import { McpGuard } from './auth/mcp-guard.decorator';
 import { PREFIX_TOOL_NAME } from './constants';
+import { ModuleRef } from '@nestjs/core';
 
 @Injectable()
 export class GmailTool {
   private readonly logger = new Logger(GmailTool.name);
   
   constructor(
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly authGuard: AuthGuard,
+    public readonly moduleRef: ModuleRef // ModuleRef 주입
   ) {}
+
+  @Tool({
+    name: `${PREFIX_TOOL_NAME}testGuardByClass`,
+    description: 'Test McpGuard with guard class',
+    parameters: z.object({
+      testParam: z.string().describe('Test parameter').optional(),
+    }),
+  })
+  @McpGuard(AuthGuard) // 가드 클래스 직접 전달
+  async testGuardByClass(params: { testParam?: string }, context: Context) {
+    this.logger.log('testGuardByClass 메서드 실행');
+    
+    return {
+      content: [{ 
+        type: 'text', 
+        text: '가드 클래스 테스트 성공!' 
+      }]
+    };
+  }
+  
+  @Tool({
+    name: `${PREFIX_TOOL_NAME}testGuardByProperty`,
+    description: 'Test McpGuard with guard property',
+    parameters: z.object({
+      testParam: z.string().describe('Test parameter').optional(),
+    }),
+  })
+  @McpGuard('authGuard') // 주입된 가드 속성 이름 전달
+  async testGuardByProperty(params: { testParam?: string }, context: Context) {
+    this.logger.log('testGuardByProperty 메서드 실행');
+    
+    return {
+      content: [{ 
+        type: 'text', 
+        text: '가드 속성 테스트 성공!' 
+      }]
+    };
+  }
+
+  @Tool({
+    name: `testForAuthGuard`,
+    description: 'Test for AuthGuard',
+  })
+  @McpGuard('authGuard')
+  async testForAuthGuard(context: Context) {
+    this.testSubMethod();
+    return {
+      content: [
+        {
+          type: 'text',
+          text: 'Hello!'
+        }
+      ],
+      messages: []
+    };
+  }
+
+  @McpGuard()
+  async testSubMethod() {
+    this.logger.log('testSubMethod called');
+  }
 
   @Tool({
     name: `${PREFIX_TOOL_NAME}listMessages`,
@@ -20,6 +86,7 @@ export class GmailTool {
       query: z.string().describe('Gmail search query (e.g., "from:example@gmail.com", "is:unread", "subject:hello")').optional(),
     }),
   })
+  @McpGuard('authGuard') // 주입된 authGuard를 사용
   async listMessages(params: { 
     maxResults: number;
     query?: string;

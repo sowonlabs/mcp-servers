@@ -22,7 +22,11 @@ npx @sowonai/mcp-gmail
 ```
 
 ```json
-{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"listMessages","arguments":{"maxResults": 5}}}
+{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"testForAuthGuard"}}
+```
+
+```json
+{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"gmail_listMessages","arguments":{"maxResults": 5}}}
 ```
 
 ```json
