@@ -73,7 +73,7 @@ describe('MCP server integration test', () => {
     const request: CallToolRequest = {
       method: 'tools/call',
       params: {
-        name: 'authenticate',
+        name: 'gcalendar_authenticate',
         arguments: {}
       }
     };
@@ -86,7 +86,7 @@ describe('MCP server integration test', () => {
     const request: CallToolRequest = {
       method: 'tools/call',
       params: {
-        name: 'checkAuthStatus',
+        name: 'gcalendar_checkAuthStatus',
         arguments: {}
       }
     };
@@ -99,7 +99,7 @@ describe('MCP server integration test', () => {
     const request: CallToolRequest = {
       method: 'tools/call',
       params: {
-        name: 'listCalendars',
+        name: 'gcalendar_listCalendars',
         arguments: {}
       }
     };
@@ -112,7 +112,7 @@ describe('MCP server integration test', () => {
     const request: CallToolRequest = {
       method: 'tools/call',
       params: {
-        name: 'createEvent',
+        name: 'gcalendar_createEvent',
         arguments: {
           "calendarId": "primary",
           "summary": "test event",

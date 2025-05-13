@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
 import { AuthService } from './auth/auth.service';
+import { PREFIX_TOOL_NAME } from './constants';
 
 @Injectable()
 export class CalendarTool {
@@ -12,7 +13,7 @@ export class CalendarTool {
   ) {}
 
   @Tool({
-    name: 'listCalendars',
+    name: `${PREFIX_TOOL_NAME}listCalendars`,
     description: 'Retrieves the list of Google calendars for the user. This tool lists all calendars connected to your Google Calendar account.',
     parameters: z.object({}),
   })
@@ -70,7 +71,7 @@ export class CalendarTool {
   }
   
   @Tool({
-    name: 'listEvents',
+    name: `${PREFIX_TOOL_NAME}listEvents`,
     description: 'Retrieves events from the specified Google calendar. This tool fetches events from your Google Calendar. If no time range is specified, it retrieves events for the next 7 days from the current date.',
     parameters: z.object({
       calendarId: z.string().describe('The calendar ID to retrieve events from (default: primary)').default('primary'),
@@ -176,7 +177,7 @@ export class CalendarTool {
   }
   
   @Tool({
-    name: 'createEvent',
+    name: `${PREFIX_TOOL_NAME}createEvent`,
     description: 'Creates a new event in the specified Google Calendar. This tool allows you to schedule events with various details such as title, location, description, and time information.',
     parameters: z.object({
       calendarId: z.string().describe('The calendar ID to create the event in (default: primary)').default('primary'),

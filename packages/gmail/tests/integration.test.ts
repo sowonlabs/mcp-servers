@@ -73,7 +73,7 @@ describe('MCP server integration test', () => {
     const request: CallToolRequest = {
       method: 'tools/call',
       params: {
-        name: 'authenticate',
+        name: 'gmail_authenticate',
         arguments: {}
       }
     };
@@ -86,7 +86,7 @@ describe('MCP server integration test', () => {
     const request: CallToolRequest = {
       method: 'tools/call',
       params: {
-        name: 'checkAuthStatus',
+        name: 'gmail_checkAuthStatus',
         arguments: {}
       }
     };
@@ -99,7 +99,7 @@ describe('MCP server integration test', () => {
     const request: CallToolRequest = {
       method: 'tools/call',
       params: {
-        name: 'listMessages',
+        name: 'gmail_listMessages',
         arguments: {}
       }
     };

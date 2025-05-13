@@ -73,7 +73,7 @@ describe('MCP server integration test', () => {
     const request: CallToolRequest = {
       method: 'tools/call',
       params: {
-        name: 'authenticate',
+        name: 'gdrive_authenticate',
         arguments: {}
       }
     };
@@ -86,7 +86,7 @@ describe('MCP server integration test', () => {
     const request: CallToolRequest = {
       method: 'tools/call',
       params: {
-        name: 'checkAuthStatus',
+        name: 'gdrive_checkAuthStatus',
         arguments: {}
       }
     };
@@ -99,7 +99,7 @@ describe('MCP server integration test', () => {
     const request: CallToolRequest = {
       method: 'tools/call',
       params: {
-        name: 'listFiles',
+        name: 'gdrive_listFiles',
         arguments: {
           query: 'name contains "제품 기획"',
         }

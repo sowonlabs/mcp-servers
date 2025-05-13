@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
 import { AuthService } from './auth/auth.service';
+import { PREFIX_TOOL_NAME } from './constants';
 
 @Injectable()
 export class GmailTool {
@@ -12,7 +13,7 @@ export class GmailTool {
   ) {}
 
   @Tool({
-    name: 'listMessages',
+    name: `${PREFIX_TOOL_NAME}listMessages`,
     description: 'Search and retrieve Gmail messages for the user. By default, returns the 10 most recent emails.',
     parameters: z.object({
       maxResults: z.number().describe('Maximum number of results (default: 10)').default(10),
@@ -141,7 +142,7 @@ export class GmailTool {
   }
   
   @Tool({
-    name: 'readMessage',
+    name: `${PREFIX_TOOL_NAME}readMessage`,
     description: 'Retrieve detailed content of a specific email.',
     parameters: z.object({
       messageId: z.string().describe('ID of the message to retrieve'),
@@ -277,7 +278,7 @@ export class GmailTool {
   }
   
   @Tool({
-    name: 'sendMessage',
+    name: `${PREFIX_TOOL_NAME}sendMessage`,
     description: 'Compose and send a new email.',
     parameters: z.object({
       to: z.string().describe('Recipient email address'),
@@ -380,7 +381,7 @@ export class GmailTool {
   }
 
   @Tool({
-    name: 'searchMessages',
+    name: `${PREFIX_TOOL_NAME}searchMessages`,
     description: 'Search for emails using specific criteria.',
     parameters: z.object({
       query: z.string().describe('Gmail search query (e.g., "from:example@gmail.com", "is:unread", "subject:hello")'),
