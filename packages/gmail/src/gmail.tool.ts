@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
-import { AuthService } from './auth/auth.service';
+import { GmailService } from './gmail.service';
 import { PREFIX_TOOL_NAME } from './constants';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class GmailTool {
   private readonly logger = new Logger(GmailTool.name);
   
   constructor(
-    private readonly authService: AuthService
+    private readonly gmailService: GmailService,
   ) {}
 
   @Tool({
@@ -32,7 +32,7 @@ export class GmailTool {
     
     try {
       // Get Gmail client
-      const gmail = await this.authService.getGmailClient();
+      const gmail = await this.gmailService.getGmailClient();
       
       // Create message list request
       const listRequest: any = {
@@ -154,7 +154,7 @@ export class GmailTool {
     
     try {
       // Get Gmail client
-      const gmail = await this.authService.getGmailClient();
+      const gmail = await this.gmailService.getGmailClient();
       
       // Retrieve message details
       const response = await gmail.users.messages.get({
@@ -301,7 +301,7 @@ export class GmailTool {
     
     try {
       // Get Gmail client
-      const gmail = await this.authService.getGmailClient();
+      const gmail = await this.gmailService.getGmailClient();
       
       // Construct email headers
       let emailLines = [
@@ -398,7 +398,7 @@ export class GmailTool {
     
     try {
       // Get Gmail client
-      const gmail = await this.authService.getGmailClient();
+      const gmail = await this.gmailService.getGmailClient();
       
       // Message search request
       const response = await gmail.users.messages.list({

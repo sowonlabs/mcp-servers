@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
-import { AuthService } from './auth/auth.service';
+import { CalendarService } from './calendar.service';
 import { PREFIX_TOOL_NAME } from './constants';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class CalendarTool {
   private readonly logger = new Logger(CalendarTool.name);
   
   constructor(
-    private readonly authService: AuthService
+    private readonly calendarService: CalendarService
   ) {}
 
   @Tool({
@@ -22,7 +22,7 @@ export class CalendarTool {
     
     try {
       // Get calendar client
-      const calendar = await this.authService.getCalendarClient();
+      const calendar = await this.calendarService.getCalendarClient();
       
       // Get calendar list
       const response = await calendar.calendarList.list();
@@ -89,7 +89,7 @@ export class CalendarTool {
     
     try {
       // Get calendar client
-      const calendar = await this.authService.getCalendarClient();
+      const calendar = await this.calendarService.getCalendarClient();
       
       // Set request parameters for retrieving events
       const requestParams: any = {
@@ -240,7 +240,7 @@ export class CalendarTool {
     
     try {
       // Get calendar client
-      const calendar = await this.authService.getCalendarClient();
+      const calendar = await this.calendarService.getCalendarClient();
       
       // Prepare event data
       const eventData = {
