@@ -278,6 +278,13 @@ export class GmailTool {
       };
     }
   }
+
+  /**
+   * Encode subject for correct handling of Korean characters
+   */
+  private encodeSubject(subject: string): string {
+    return `=?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`;
+  }
   
   @McpTool({
     server: 'mcp-gmail',
@@ -306,10 +313,15 @@ export class GmailTool {
       // Get Gmail client
       const gmail = await this.gmailService.getGmailClient();
       
+      // Encode subject to support Korean characters properly
+      const encodedSubject = this.encodeSubject(params.subject);
+
       // Construct email headers
       let emailLines = [
+        `From: me`,
         `To: ${params.to}`,
-        `Subject: ${params.subject}`
+        `Subject: ${encodedSubject}`,
+        'Content-Type: text/html; charset=UTF-8'
       ];
       
       // Add CC and BCC if provided
