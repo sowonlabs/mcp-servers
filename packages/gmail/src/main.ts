@@ -1,32 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
-import yargs from 'yargs/yargs';
-import { hideBin } from 'yargs/helpers';
+import { parseCliOptions } from "./cli-options";
 
 const logger = new Logger('Bootstrap');
 
-// Set credentials file path as an environment variable
-const args = yargs(hideBin(process.argv))
-  .options({
-    log: {
-      alias: 'l',
-      type: 'boolean',
-      describe: 'Enable logging',
-      default: false
-    },
-    credentials: {
-      type: 'string',
-      description: 'Path to credentials.json file',
-      demandOption: false,
-    },
-  })
-  .parseSync();
-
-// Set credentials path as environment variable if provided
-if (args.credentials) {
-  process.env.GOOGLE_CREDENTIALS_PATH = args.credentials;
-}
+const args = parseCliOptions();
 
 // Run in STDIO mode
 async function bootstrapStdio() {

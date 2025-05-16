@@ -1,31 +1,28 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
-import { AuthService } from './auth/auth.service';
+import { GoogleOAuthService } from '@sowonai/nestjs-google-oauth-integration';
 import { PREFIX_TOOL_NAME } from './constants';
 
 @Injectable()
 export class AuthTool {
   private readonly logger = new Logger(AuthTool.name);
   
-  constructor(private readonly authService: AuthService) {
+  constructor(private readonly authService: GoogleOAuthService) {
   }
 
   @Tool({
     name: `${PREFIX_TOOL_NAME}authenticate`,
-    description:
-      'A tool for Google Drive authentication. This tool authenticates users for Google Drive access.',
+    description: `
+    A tool for Google Drive authentication. This tool authenticates users for Google Drive access.
+    Before using this tool, always first execute ${PREFIX_TOOL_NAME}checkAuthStatus to verify if authentication is needed.
+    If the user is not authenticated, then use this tool to initiate the authentication process.
+    `,
   })
   async authenticate(context: Context) {
     this.logger.log('Starting Google Drive authentication process');
-    const SCOPES = [
-      'https://www.googleapis.com/auth/drive',
-      'https://www.googleapis.com/auth/drive.file',
-      'https://www.googleapis.com/auth/drive.readonly',
-      'https://www.googleapis.com/auth/drive.metadata.readonly'
-    ];
 
-    await this.authService.authenticate(SCOPES);
+    await this.authService.authenticate();
     this.logger.log('Google Drive authentication completed successfully');
 
     return {

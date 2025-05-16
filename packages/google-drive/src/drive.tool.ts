@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
-import { AuthService } from './auth/auth.service';
+import { DriveService } from './drive.service';
 import { PREFIX_TOOL_NAME } from './constants';
 import * as fs from 'fs';
 import * as stream from 'stream';
@@ -15,7 +15,7 @@ export class DriveTool {
   private readonly logger = new Logger(DriveTool.name);
   
   constructor(
-    private readonly authService: AuthService
+    private readonly driveService: DriveService
   ) {}
 
   @Tool({
@@ -46,7 +46,7 @@ export class DriveTool {
     
     try {
       // Get Drive client
-      const drive = await this.authService.getDriveClient();
+      const drive = await this.driveService.getDriveClient();
       
       // Create file list request
       let queryString = '';
@@ -176,7 +176,7 @@ export class DriveTool {
     
     try {
       // Get Drive client
-      const drive = await this.authService.getDriveClient();
+      const drive = await this.driveService.getDriveClient();
       
       // Get file details
       const response = await drive.files.get({
@@ -251,7 +251,7 @@ export class DriveTool {
     
     try {
       // Get Drive client
-      const drive = await this.authService.getDriveClient();
+      const drive = await this.driveService.getDriveClient();
       
       // Create folder metadata
       const fileMetadata: any = {
@@ -333,7 +333,7 @@ export class DriveTool {
       }
       
       // Get Drive client
-      const drive = await this.authService.getDriveClient();
+      const drive = await this.driveService.getDriveClient();
       
       // Determine file name
       const name = params.name || path.basename(params.filePath);
@@ -411,7 +411,7 @@ export class DriveTool {
     
     try {
       // Get Drive client
-      const drive = await this.authService.getDriveClient();
+      const drive = await this.driveService.getDriveClient();
       
       // Get file metadata to get the name
       const metadata = await drive.files.get({
@@ -509,7 +509,7 @@ export class DriveTool {
     
     try {
       // Get Drive client
-      const drive = await this.authService.getDriveClient();
+      const drive = await this.driveService.getDriveClient();
       
       // Get file name before deletion
       const metadata = await drive.files.get({
@@ -582,7 +582,7 @@ export class DriveTool {
     
     try {
       // Get Drive client
-      const drive = await this.authService.getDriveClient();
+      const drive = await this.driveService.getDriveClient();
       
       // Get file name for better response
       const metadata = await drive.files.get({
@@ -682,7 +682,7 @@ export class DriveTool {
     
     try {
       // Get Drive client
-      const drive = await this.authService.getDriveClient();
+      const drive = await this.driveService.getDriveClient();
       
       // Get file name for better response
       const metadata = await drive.files.get({

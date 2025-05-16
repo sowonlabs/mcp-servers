@@ -1,30 +1,29 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
-import { Tool, Resource, Context } from '@rekog/mcp-nest';
+import { Injectable, Logger } from '@nestjs/common';
+import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
-import { AuthService } from './auth/auth.service';
+import { GoogleOAuthService } from '@sowonai/nestjs-google-oauth-integration';
 import { PREFIX_TOOL_NAME } from './constants';
 
 @Injectable()
 export class AuthTool {
   private readonly logger = new Logger(AuthTool.name);
   
-  constructor(private readonly authService: AuthService) {
+  constructor(private readonly authService: GoogleOAuthService) {
   }
 
   @Tool({
     name: `${PREFIX_TOOL_NAME}authenticate`,
-    description:
-      'A tool for Google Calendar authentication. This tool authenticates users for Google Calendar access.',
+    description: `
+    A tool for Google Calendar authentication. This tool authenticates users for Google Calendar access.
+    Before using this tool, always first execute ${PREFIX_TOOL_NAME}checkAuthStatus to verify if authentication is needed.
+    If the user is not authenticated, then use this tool to initiate the authentication process.
+    `,
   })
   async authenticate(context: Context) {
-    this.logger.log('Starting Google authentication process');
-    const SCOPES = [
-      'https://www.googleapis.com/auth/calendar',
-      'https://www.googleapis.com/auth/calendar.events',
-    ];
+    this.logger.log('Starting Google Calendar authentication process');
 
-    await this.authService.authenticate(SCOPES);
-    this.logger.log('Google authentication completed successfully');
+    await this.authService.authenticate();
+    this.logger.log('Google Calendar authentication completed successfully');
 
     return {
       content: [{ type: 'text', text: 'Google Calendar Authentication completed successfully.' }],

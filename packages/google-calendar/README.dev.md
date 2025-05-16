@@ -1,36 +1,36 @@
 # @sowonai/mcp-google-calendar
 
-## dev usage
+## Development Environment Usage
 ```shell
 npm run dev
 ```
 
-## npx usage
+## npx Usage
 ```shell
 npx @sowonai/mcp-google-calendar
 ```
 
-## Test usage (using jsonrpc)
+## Test Usage (using jsonrpc)
 
-### call tools
+### Tool Calls
 ```json
-{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"authenticate","arguments":{}}}
+{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"gcalendar_authenticate","arguments":{}}}
 ```
 
 ```json
-{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"checkAuthStatus","arguments":{}}}
+{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"gcalendar_checkAuthStatus","arguments":{}}}
 ```
 
 ```json
-{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"listCalendars","arguments":{}}}
+{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"gcalendar_listCalendars","arguments":{}}}
 ```
 
 ```json
-{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"listEvents","arguments":{"calendarId": "primary"}}}
+{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"gcalendar_listEvents","arguments":{"calendarId": "primary"}}}
 ```
 
 ```json
-{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"createEvent","arguments":{
+{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"gcalendar_createEvent","arguments":{
   "calendarId": "primary",
   "summary": "회의",
   "location": "회의실 A",
@@ -59,3 +59,4 @@ npx @sowonai/mcp-google-calendar
     ]
   }
 }}}
+```

@@ -1,31 +1,28 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Tool, Context } from '@rekog/mcp-nest';
 import { z } from 'zod';
-import { AuthService } from './auth/auth.service';
+import { GoogleOAuthService } from '@sowonai/nestjs-google-oauth-integration';
 import { PREFIX_TOOL_NAME } from './constants';
 
 @Injectable()
 export class AuthTool {
   private readonly logger = new Logger(AuthTool.name);
   
-  constructor(private readonly authService: AuthService) {
+  constructor(private readonly authService: GoogleOAuthService) {
   }
 
   @Tool({
     name: `${PREFIX_TOOL_NAME}authenticate`,
-    description:
-      'A tool for Gmail authentication. This tool authenticates users for Gmail access.',
+    description: `
+    A tool for Gmail authentication. This tool authenticates users for Gmail access.
+    Before using this tool, always first execute ${PREFIX_TOOL_NAME}checkAuthStatus to verify if authentication is needed.
+    If the user is not authenticated, then use this tool to initiate the authentication process.
+    `,
   })
   async authenticate(context: Context) {
     this.logger.log('Starting Gmail authentication process');
-    const SCOPES = [
-      'https://www.googleapis.com/auth/gmail.readonly',
-      'https://www.googleapis.com/auth/gmail.send',
-      'https://www.googleapis.com/auth/gmail.compose',
-      'https://www.googleapis.com/auth/gmail.modify',
-    ];
 
-    await this.authService.authenticate(SCOPES);
+    await this.authService.authenticate();
     this.logger.log('Gmail authentication completed successfully');
 
     return {
