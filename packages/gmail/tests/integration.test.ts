@@ -9,6 +9,7 @@ import {
   CallToolRequest,
   CallToolResultSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import * as dotenv from 'dotenv';
 
 const MINUTE = 60_000;
 
@@ -21,6 +22,8 @@ describe('MCP server integration test', () => {
   
   beforeAll(async () => {
     console.log('Starting MCP server...');
+
+    dotenv.config({ path: '../.env.test' });
     
     // Run NestJS build command
     try {
@@ -52,6 +55,11 @@ describe('MCP server integration test', () => {
       command: 'node',
       args: [mainJsPath],
       cwd: path.resolve(__dirname, '..'),
+      env: {
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+        GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN,
+      }
     });
     
     // Connect client and transport
@@ -69,32 +77,6 @@ describe('MCP server integration test', () => {
     }
   });
 
-  it('authenticate tool test', async () => {
-    const request: CallToolRequest = {
-      method: 'tools/call',
-      params: {
-        name: 'gmail_authenticate',
-        arguments: {}
-      }
-    };
-    
-    const response = await client.request(request, CallToolResultSchema);
-    console.log('Response:', response);
-  }, MINUTE);
-  
-  it('checkAuthStatus tool test', async () => {
-    const request: CallToolRequest = {
-      method: 'tools/call',
-      params: {
-        name: 'gmail_checkAuthStatus',
-        arguments: {}
-      }
-    };
-    
-    const response = await client.request(request, CallToolResultSchema);
-    console.log('Response:', response);
-  }, MINUTE);
-
   it('listMessages tool test', async () => {
     const request: CallToolRequest = {
       method: 'tools/call',
@@ -103,7 +85,7 @@ describe('MCP server integration test', () => {
         arguments: {}
       }
     };
-    
+
     const response = await client.request(request, CallToolResultSchema);
     console.log('Response:', response);
   }, MINUTE);
