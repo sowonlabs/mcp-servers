@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Tool, Context } from '@rekog/mcp-nest';
+import { McpTool } from '@sowonai/nestjs-mcp-adapter';
 import { z } from 'zod';
 import { GmailService } from './gmail.service';
 import { PREFIX_TOOL_NAME } from './constants';
@@ -12,10 +12,11 @@ export class GmailTool {
     private readonly gmailService: GmailService,
   ) {}
 
-  @Tool({
+  @McpTool({
+    server: 'mcp-gmail',
     name: `${PREFIX_TOOL_NAME}listMessages`,
     description: 'Search and retrieve Gmail messages for the user. By default, returns the 10 most recent emails.',
-    parameters: z.object({
+    input: z.object({
       maxResults: z.number().describe('Maximum number of results (default: 10)').default(10),
       query: z.string().describe('Gmail search query (e.g., "from:example@gmail.com", "is:unread", "subject:hello")').optional(),
     }),
@@ -23,7 +24,7 @@ export class GmailTool {
   async listMessages(params: { 
     maxResults: number;
     query?: string;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to retrieve message list');
     this.logger.log(`Maximum results: ${params.maxResults}`);
     if (params.query) {
@@ -141,14 +142,15 @@ export class GmailTool {
     }
   }
   
-  @Tool({
+  @McpTool({
+    server: 'mcp-gmail',
     name: `${PREFIX_TOOL_NAME}readMessage`,
     description: 'Retrieve detailed content of a specific email.',
-    parameters: z.object({
+    input: z.object({
       messageId: z.string().describe('ID of the message to retrieve'),
     }),
   })
-  async readMessage(params: { messageId: string }, context: Context) {
+  async readMessage(params: { messageId: string }) {
     this.logger.log('Starting to retrieve message details');
     this.logger.log(`Message ID: ${params.messageId}`);
     
@@ -277,10 +279,11 @@ export class GmailTool {
     }
   }
   
-  @Tool({
+  @McpTool({
+    server: 'mcp-gmail',
     name: `${PREFIX_TOOL_NAME}sendMessage`,
     description: 'Compose and send a new email.',
-    parameters: z.object({
+    input: z.object({
       to: z.string().describe('Recipient email address'),
       subject: z.string().describe('Email subject'),
       body: z.string().describe('Email body content'),
@@ -294,7 +297,7 @@ export class GmailTool {
     body: string;
     cc?: string;
     bcc?: string;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to send email');
     this.logger.log(`Recipient: ${params.to}`);
     this.logger.log(`Subject: ${params.subject}`);
@@ -380,10 +383,11 @@ export class GmailTool {
     }
   }
 
-  @Tool({
+  @McpTool({
+    server: 'mcp-gmail',
     name: `${PREFIX_TOOL_NAME}searchMessages`,
     description: 'Search for emails using specific criteria.',
-    parameters: z.object({
+    input: z.object({
       query: z.string().describe('Gmail search query (e.g., "from:example@gmail.com", "is:unread", "subject:hello")'),
       maxResults: z.number().describe('Maximum number of results').default(10),
     }),
@@ -391,7 +395,7 @@ export class GmailTool {
   async searchMessages(params: { 
     query: string;
     maxResults: number;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting email search');
     this.logger.log(`Search query: ${params.query}`);
     this.logger.log(`Maximum results: ${params.maxResults}`);

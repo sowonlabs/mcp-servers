@@ -2,6 +2,8 @@ import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
 
 export interface CliOptions {
+    protocol: 'STDIO' | 'HTTP';
+    port: number;
     log: boolean;
     credentials?: string;
 }
@@ -9,6 +11,17 @@ export interface CliOptions {
 export function parseCliOptions(): CliOptions {
     const args = yargs(hideBin(process.argv))
         .options({
+            protocol: {
+                type: 'string',
+                choices: ['STDIO', 'HTTP'],
+                default: 'STDIO',
+                describe: 'Protocol to use (STDIO or HTTP)',
+            },
+            port: {
+                type: 'number',
+                default: 3000,
+                describe: 'Port to use for HTTP protocol',
+            },
             log: {
                 alias: 'l',
                 type: 'boolean',

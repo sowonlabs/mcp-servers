@@ -7,15 +7,17 @@ const logger = new Logger('Bootstrap');
 
 const args = parseCliOptions();
 
-// Run in STDIO mode
-async function bootstrapStdio() {
-  const enableLogging = args.log || false;
-  
+async function bootstrap() {
   try {
-    const app = await NestFactory.createApplicationContext(AppModule, {
-      logger: enableLogging ? ['error', 'warn', 'debug', 'log'] : false
+    let app;
+
+    app = await NestFactory.create(AppModule, {
+      logger: args.log ? ['error', 'warn', 'debug', 'log'] : false
     });
-    
+
+    await app.init();
+    await app.listen(args.port);
+
     // Error handling
     process.on('uncaughtException', (err) => {
       logger.error('Unexpected error occurred:', err);
@@ -36,4 +38,4 @@ async function bootstrapStdio() {
   }
 }
 
-void bootstrapStdio();
+void bootstrap();

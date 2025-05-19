@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { McpModule, McpTransportType } from '@rekog/mcp-nest';
+import { DiscoveryModule } from '@nestjs/core';
+import { McpAdapterModule } from '@sowonai/nestjs-mcp-adapter';
 import { AuthTool } from './auth.tool';
 import { GoogleOAuthModule, FileSystemTokenRepository } from '@sowonai/nestjs-google-oauth-integration';
 import { GmailService } from './gmail.service';
 import { GmailTool } from './gmail.tool';
+import { McpController } from './mcp.controller';
 import { parseCliOptions } from "./cli-options";
 import * as path from 'path';
 import * as os from 'os';
@@ -15,11 +17,8 @@ const tokenDir = path.join(os.homedir(), '.sowonai');
 
 @Module({
   imports: [
-    McpModule.forRoot({
-      name: 'mcp-gmail',
-      version: '0.1.0',
-      transport: McpTransportType.STDIO,
-    }),
+    DiscoveryModule,
+    McpAdapterModule.forRoot(),
     GoogleOAuthModule.forRoot({
       name: 'mcp-gmail',
       credentialsFilename: args.credentials || 'credentials.json',
@@ -38,6 +37,7 @@ const tokenDir = path.join(os.homedir(), '.sowonai');
       }
     }),
   ],
+  controllers: [McpController],
   providers: [AuthTool, GmailTool, GmailService],
 })
 export class AppModule {}
