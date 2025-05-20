@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { StdioExpressAdapter } from '@sowonai/nestjs-mcp-adapter';
 import { Logger } from '@nestjs/common';
 import { parseCliOptions } from "./cli-options";
 
@@ -11,9 +12,17 @@ async function bootstrap() {
   try {
     let app;
 
-    app = await NestFactory.create(AppModule, {
-      logger: args.log ? ['error', 'warn', 'debug', 'log'] : false
-    });
+    if (args.protocol === 'HTTP') {
+      app = await NestFactory.create(AppModule, {
+        logger: args.log ? ['error', 'warn', 'debug', 'log'] : false
+      });
+    } else {
+      const adapter = new StdioExpressAdapter('/mcp');
+      app = await NestFactory.create(AppModule, adapter, {
+        logger: args.log ? ['error', 'warn', 'debug', 'log'] : false
+      });
+    }
+
 
     await app.init();
     await app.listen(args.port);

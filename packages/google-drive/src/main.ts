@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { parseCliOptions } from './cli-options';
+import { StdioExpressAdapter } from '@sowonai/nestjs-mcp-adapter';
 
 const logger = new Logger('Bootstrap');
 
@@ -13,7 +14,8 @@ async function bootstrapStdio() {
   const enableLogging = args.log || false;
   
   try {
-    const app = await NestFactory.createApplicationContext(AppModule, {
+    const adapter = new StdioExpressAdapter('/mcp');
+    const app = await NestFactory.create(AppModule, adapter, {
       logger: enableLogging ? ['error', 'warn', 'debug', 'log'] : false
     });
     
@@ -28,8 +30,10 @@ async function bootstrapStdio() {
       process.exit(0);
     });
     
+    await app.init();
+    await app.listen(0); // Not actually bound
+
     logger.log('Google Drive MCP server initialized successfully');
-    // MCP server handles STDIO streams internally, so don't close the app
     return app;
   } catch (error) {
     logger.error('Error occurred during MCP server initialization:', error);

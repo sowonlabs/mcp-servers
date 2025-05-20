@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Tool, Context } from '@rekog/mcp-nest';
+import { McpTool } from '@sowonai/nestjs-mcp-adapter';
 import { z } from 'zod';
 import { DriveService } from './drive.service';
-import { PREFIX_TOOL_NAME } from './constants';
+import { PREFIX_TOOL_NAME, SERVER_NAME } from './constants';
 import * as fs from 'fs';
 import * as stream from 'stream';
 import * as util from 'util';
@@ -18,23 +18,24 @@ export class DriveTool {
     private readonly driveService: DriveService
   ) {}
 
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}listFiles`,
     description: 'Search and retrieve files from Google Drive. By default, returns the 10 most recent files. Supports full Google Drive search query syntax including non-English text searches.\n\n' +
     '- For the "query" parameter: You can use a simple keyword like "제품 기획" or "회의록", or full Google Drive query syntax like "name contains \'document\'". Simple keywords will be automatically converted to proper search queries.\n' + 
     '- Example queries: "제품 기획" (searches for this Korean text), "회의록" (searches for meeting notes), "name contains \'budget\'", "mimeType=\'application/pdf\'", "modifiedTime > \'2023-01-01\'"\n' +
     '- To search for files in Korean, simply use the Korean keyword directly as your query parameter value.',
-    parameters: z.object({
+    input: {
       maxResults: z.number().describe('Maximum number of results (default: 10)').default(10),
       query: z.string().describe('Google Drive search query. Can be a simple keyword like "제품 기획" (automatically processed) or full query syntax.').optional(),
       folderId: z.string().describe('ID of the folder to list files from').optional(),
-    }),
+    },
   })
   async listFiles(params: { 
     maxResults: number;
     query?: string;
     folderId?: string;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to retrieve file list');
     this.logger.log(`Maximum results: ${params.maxResults}`);
     if (params.query) {
@@ -163,14 +164,15 @@ export class DriveTool {
     }
   }
 
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}getFileDetails`,
     description: 'Get detailed information about a specific file or folder.',
-    parameters: z.object({
+    input: {
       fileId: z.string().describe('ID of the file or folder to retrieve details for'),
-    }),
+    },
   })
-  async getFileDetails(params: { fileId: string }, context: Context) {
+  async getFileDetails(params: { fileId: string }) {
     this.logger.log('Starting to retrieve file details');
     this.logger.log(`File ID: ${params.fileId}`);
     
@@ -231,18 +233,19 @@ export class DriveTool {
     }
   }
 
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}createFolder`,
     description: 'Create a new folder in Google Drive.',
-    parameters: z.object({
+    input: {
       name: z.string().describe('Name of the folder to create'),
       parentId: z.string().describe('ID of the parent folder').optional(),
-    }),
+    },
   })
   async createFolder(params: { 
     name: string;
     parentId?: string;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to create folder');
     this.logger.log(`Folder name: ${params.name}`);
     if (params.parentId) {
@@ -299,22 +302,23 @@ export class DriveTool {
     }
   }
 
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}uploadFile`,
     description: 'Upload a file to Google Drive.',
-    parameters: z.object({
+    input: {
       filePath: z.string().describe('Path to the local file to upload'),
       name: z.string().describe('Name to give the file in Google Drive').optional(),
       parentId: z.string().describe('ID of the parent folder in Google Drive').optional(),
       mimeType: z.string().describe('MIME type of the file').optional(),
-    }),
+    },
   })
   async uploadFile(params: { 
     filePath: string;
     name?: string;
     parentId?: string;
     mimeType?: string;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to upload file');
     this.logger.log(`File path: ${params.filePath}`);
     
@@ -393,18 +397,19 @@ export class DriveTool {
     }
   }
 
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}downloadFile`,
     description: 'Download a file from Google Drive to a local destination.',
-    parameters: z.object({
+    input: {
       fileId: z.string().describe('ID of the file to download'),
       destinationPath: z.string().describe('Local path where to save the downloaded file'),
-    }),
+    },
   })
   async downloadFile(params: { 
     fileId: string;
     destinationPath: string;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to download file');
     this.logger.log(`File ID: ${params.fileId}`);
     this.logger.log(`Destination path: ${params.destinationPath}`);
@@ -496,14 +501,15 @@ export class DriveTool {
     }
   }
 
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}deleteFile`,
     description: 'Permanently delete a file or folder from Google Drive.',
-    parameters: z.object({
+    input: {
       fileId: z.string().describe('ID of the file or folder to delete'),
-    }),
+    },
   })
-  async deleteFile(params: { fileId: string }, context: Context) {
+  async deleteFile(params: { fileId: string }) {
     this.logger.log('Starting to delete file/folder');
     this.logger.log(`File/Folder ID: ${params.fileId}`);
     
@@ -554,10 +560,11 @@ export class DriveTool {
     }
   }
 
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}shareFile`,
     description: 'Share a file or folder with specific users or make it publicly accessible.',
-    parameters: z.object({
+    input: {
       fileId: z.string().describe('ID of the file or folder to share'),
       email: z.string().describe('Email address of the user to share with').optional(),
       role: z.enum(['reader', 'commenter', 'writer', 'fileOrganizer', 'organizer', 'owner']).describe('Permission role to grant').default('reader'),
@@ -565,7 +572,7 @@ export class DriveTool {
       domain: z.string().describe('Domain for domain-type permissions').optional(),
       allowDiscovery: z.boolean().describe('Whether the file can be discovered through search').default(false),
       message: z.string().describe('Custom message to include in notification emails').optional(),
-    }),
+    },
   })
   async shareFile(params: { 
     fileId: string;
@@ -575,7 +582,7 @@ export class DriveTool {
     domain?: string;
     allowDiscovery: boolean;
     message?: string;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to share file/folder');
     this.logger.log(`File/Folder ID: ${params.fileId}`);
     this.logger.log(`Sharing with type: ${params.type}, role: ${params.role}`);
@@ -662,20 +669,21 @@ export class DriveTool {
     }
   }
 
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}moveFile`,
     description: 'Move a file or folder to a different folder in Google Drive.',
-    parameters: z.object({
+    input: {
       fileId: z.string().describe('ID of the file or folder to move'),
       newParentId: z.string().describe('ID of the destination folder'),
       keepParents: z.boolean().describe('Whether to keep the file in its current folders').default(false),
-    }),
+    },
   })
   async moveFile(params: { 
     fileId: string;
     newParentId: string;
     keepParents: boolean;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to move file/folder');
     this.logger.log(`File/Folder ID: ${params.fileId}`);
     this.logger.log(`Destination folder ID: ${params.newParentId}`);

@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Tool, Context } from '@rekog/mcp-nest';
+import { McpTool } from '@sowonai/nestjs-mcp-adapter';
 import { z } from 'zod';
 import { CalendarService } from './calendar.service';
-import { PREFIX_TOOL_NAME } from './constants';
+import { PREFIX_TOOL_NAME, SERVER_NAME } from './constants';
 
 @Injectable()
 export class CalendarTool {
@@ -12,12 +12,13 @@ export class CalendarTool {
     private readonly calendarService: CalendarService
   ) {}
 
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}listCalendars`,
     description: 'Retrieves the list of Google calendars for the user. This tool lists all calendars connected to your Google Calendar account.',
-    parameters: z.object({}),
+    input: {},
   })
-  async listCalendars(params: Record<string, never>, context: Context) {
+  async listCalendars(params: Record<string, never>) {
     this.logger.log('Starting to retrieve calendar list');
     
     try {
@@ -70,20 +71,21 @@ export class CalendarTool {
     }
   }
   
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}listEvents`,
     description: 'Retrieves events from the specified Google calendar. This tool fetches events from your Google Calendar. If no time range is specified, it retrieves events for the next 7 days from the current date.',
-    parameters: z.object({
+    input: {
       calendarId: z.string().describe('The calendar ID to retrieve events from (default: primary)').default('primary'),
       timeMin: z.string().describe('The start time for retrieving events (ISO format date string)').optional(),
       timeMax: z.string().describe('The end time for retrieving events (ISO format date string)').optional(),
-    }),
+    },
   })
   async listEvents(params: { 
     calendarId: string;
     timeMin?: string;
     timeMax?: string; 
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to retrieve calendar events');
     this.logger.log(`Calendar ID: ${params.calendarId}`);
     
@@ -176,10 +178,11 @@ export class CalendarTool {
     }
   }
   
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}createEvent`,
     description: 'Creates a new event in the specified Google Calendar. This tool allows you to schedule events with various details such as title, location, description, and time information.',
-    parameters: z.object({
+    input: {
       calendarId: z.string().describe('The calendar ID to create the event in (default: primary)').default('primary'),
       summary: z.string().describe('The title or summary of the event'),
       location: z.string().describe('The location of the event').optional(),
@@ -207,7 +210,7 @@ export class CalendarTool {
           })
         ).describe('Custom reminder settings').optional(),
       }).optional(),
-    }),
+    },
   })
   async createEvent(params: {
     calendarId: string;
@@ -233,7 +236,7 @@ export class CalendarTool {
         minutes: number;
       }>;
     };
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to create calendar event');
     this.logger.log(`Calendar ID: ${params.calendarId}`);
     this.logger.log(`Event summary: ${params.summary}`);
@@ -394,3 +397,4 @@ export class CalendarTool {
     }
   }
 }
+

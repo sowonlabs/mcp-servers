@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { McpTool } from '@sowonai/nestjs-mcp-adapter';
 import { z } from 'zod';
 import { GmailService } from './gmail.service';
-import { PREFIX_TOOL_NAME } from './constants';
+import { PREFIX_TOOL_NAME, SERVER_NAME } from './constants';
 
 @Injectable()
 export class GmailTool {
@@ -13,13 +13,18 @@ export class GmailTool {
   ) {}
 
   @McpTool({
-    server: 'mcp-gmail',
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}listMessages`,
     description: 'Search and retrieve Gmail messages for the user. By default, returns the 10 most recent emails.',
-    input: z.object({
+    input: {
       maxResults: z.number().describe('Maximum number of results (default: 10)').default(10),
       query: z.string().describe('Gmail search query (e.g., "from:example@gmail.com", "is:unread", "subject:hello")').optional(),
-    }),
+    },
+    annotations: {
+      title: 'List Messages',
+      readOnlyHint: true,
+      desctructiveHint: false
+    }
   })
   async listMessages(params: { 
     maxResults: number;
@@ -143,12 +148,17 @@ export class GmailTool {
   }
   
   @McpTool({
-    server: 'mcp-gmail',
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}readMessage`,
     description: 'Retrieve detailed content of a specific email.',
-    input: z.object({
+    input: {
       messageId: z.string().describe('ID of the message to retrieve'),
-    }),
+    },
+    annotations: {
+      title: 'Read Messages',
+      readOnlyHint: true,
+      desctructiveHint: false
+    }
   })
   async readMessage(params: { messageId: string }) {
     this.logger.log('Starting to retrieve message details');
@@ -287,16 +297,21 @@ export class GmailTool {
   }
   
   @McpTool({
-    server: 'mcp-gmail',
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}sendMessage`,
     description: 'Compose and send a new email.',
-    input: z.object({
+    input: {
       to: z.string().describe('Recipient email address'),
       subject: z.string().describe('Email subject'),
       body: z.string().describe('Email body content'),
       cc: z.string().describe('Carbon copy recipients (CC)').optional(),
       bcc: z.string().describe('Blind carbon copy recipients (BCC)').optional(),
-    }),
+    },
+    annotations: {
+      title: 'Send Message',
+      readOnlyHint: false,
+      desctructiveHint: true
+    }
   })
   async sendMessage(params: {
     to: string;
@@ -396,13 +411,18 @@ export class GmailTool {
   }
 
   @McpTool({
-    server: 'mcp-gmail',
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}searchMessages`,
     description: 'Search for emails using specific criteria.',
-    input: z.object({
+    input: {
       query: z.string().describe('Gmail search query (e.g., "from:example@gmail.com", "is:unread", "subject:hello")'),
       maxResults: z.number().describe('Maximum number of results').default(10),
-    }),
+    },
+    annotations: {
+      title: 'Search Messages',
+      readOnlyHint: true,
+      desctructiveHint: false
+    }
   })
   async searchMessages(params: { 
     query: string;

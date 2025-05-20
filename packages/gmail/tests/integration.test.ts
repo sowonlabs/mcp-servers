@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import {
+  InitializeRequest,
+  InitializeResultSchema,
   CallToolRequest,
   CallToolResultSchema,
 } from '@modelcontextprotocol/sdk/types.js';
@@ -38,7 +40,7 @@ describe('MCP server integration test', () => {
     }
     
     // Check built JavaScript file path
-    const mainJsPath = path.resolve(__dirname, '../dist/main.js');
+    const mainJsPath = 'dist/main.js';
     
     if (!fs.existsSync(mainJsPath)) {
       throw new Error(`Built file not found: ${mainJsPath}`);
@@ -54,11 +56,10 @@ describe('MCP server integration test', () => {
     transport = new StdioClientTransport({
       command: 'node',
       args: [mainJsPath],
-      cwd: path.resolve(__dirname, '..'),
       env: {
-        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-        GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN,
+        'GOOGLE_CLIENT_ID': process.env.GOOGLE_CLIENT_ID,
+        'GOOGLE_CLIENT_SECRET': process.env.GOOGLE_CLIENT_SECRET,
+        'GOOGLE_REFRESH_TOKEN': process.env.GOOGLE_REFRESH_TOKEN,
       }
     });
     
@@ -76,6 +77,23 @@ describe('MCP server integration test', () => {
       console.log('Closed MCP server connection.');
     }
   });
+
+  it('initialize test', async () => {
+    const request: InitializeRequest = {
+      method: 'initialize',
+      params: {
+        protocolVersion: "2025-03-26",
+        capabilities: {},
+        clientInfo: {
+          name: "test",
+          version: "0.1.0"
+        }
+      }
+    };
+
+    const response = await client.request(request, InitializeResultSchema);
+    console.log('Response:', response);
+  }, MINUTE);
 
   it('listMessages tool test', async () => {
     const request: CallToolRequest = {

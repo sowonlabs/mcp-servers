@@ -1,20 +1,28 @@
 import { Module } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 import { McpAdapterModule } from '@sowonai/nestjs-mcp-adapter';
-import { GoogleOAuthModule, FileSystemTokenRepository } from '@sowonai/nestjs-google-oauth-integration';
+import { GoogleOAuthModule } from '@sowonai/nestjs-google-oauth-integration';
 import { GmailService } from './gmail.service';
 import { GmailTool } from './gmail.tool';
 import { McpController } from './mcp.controller';
 import { parseCliOptions } from "./cli-options";
+import { SERVER_NAME } from './constants';
 
 const args = parseCliOptions();
 
 @Module({
   imports: [
     DiscoveryModule,
-    McpAdapterModule.forRoot(),
+    McpAdapterModule.forRoot({
+      servers: {
+        [SERVER_NAME]: {
+          version: '1.0.0',
+          instructions: 'Gmail server: supports read, send, and modify emails.',
+        },
+      }
+    }),
     GoogleOAuthModule.forRoot({
-      name: 'mcp-gmail',
+      name: SERVER_NAME,
       credentialsFilename: args.credentials || 'credentials.json',
       scopes: [
         'https://www.googleapis.com/auth/gmail.readonly',

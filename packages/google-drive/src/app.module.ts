@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { McpModule, McpTransportType } from '@rekog/mcp-nest';
+import { McpAdapterModule } from '@sowonai/nestjs-mcp-adapter';
 import { AuthTool } from './auth.tool';
 import { GoogleOAuthModule, FileSystemTokenRepository } from '@sowonai/nestjs-google-oauth-integration';
 import { DriveService } from './drive.service';
 import { DriveTool } from './drive.tool';
 import { parseCliOptions } from './cli-options';
+import { McpController } from './mcp.controller';
 import * as path from 'path';
 import * as os from 'os';
+import { SERVER_NAME } from './constants';
 
 // Set credentials file path as an environment variable
 const args = parseCliOptions();
@@ -15,13 +17,16 @@ const tokenDir = path.join(os.homedir(), '.sowonai');
 
 @Module({
   imports: [
-    McpModule.forRoot({
-      name: 'mcp-google-drive',
-      version: '0.1.0',
-      transport: McpTransportType.STDIO,
+    McpAdapterModule.forRoot({
+      servers: {
+        [SERVER_NAME]: {
+          version: '0.2.0',
+          instructions: 'Google Drive integration server for MCP.',
+        }
+      }
     }),
     GoogleOAuthModule.forRoot({
-      name: 'mcp-google-drive',
+      name: SERVER_NAME,
       credentialsFilename: args.credentials || 'credentials.json',
       tokenRepository: new FileSystemTokenRepository({
         tokenDir: tokenDir,
@@ -38,6 +43,7 @@ const tokenDir = path.join(os.homedir(), '.sowonai');
       }
     }),
   ],
+  controllers: [McpController],
   providers: [AuthTool, DriveTool, DriveService],
 })
 export class AppModule {}

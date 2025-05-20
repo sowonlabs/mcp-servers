@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Tool, Context } from '@rekog/mcp-nest';
+import { McpTool } from '@sowonai/nestjs-mcp-adapter';
 import { z } from 'zod';
 import { GoogleOAuthService } from '@sowonai/nestjs-google-oauth-integration';
 import { PREFIX_TOOL_NAME } from './constants';
@@ -11,15 +11,17 @@ export class AuthTool {
   constructor(private readonly authService: GoogleOAuthService) {
   }
 
-  @Tool({
+  @McpTool({
+    server: 'mcp-google-calendar',
     name: `${PREFIX_TOOL_NAME}authenticate`,
     description: `
     A tool for Google Calendar authentication. This tool authenticates users for Google Calendar access.
     Before using this tool, always first execute ${PREFIX_TOOL_NAME}checkAuthStatus to verify if authentication is needed.
     If the user is not authenticated, then use this tool to initiate the authentication process.
     `,
+    input: {},
   })
-  async authenticate(context: Context) {
+  async authenticate() {
     this.logger.log('Starting Google Calendar authentication process');
 
     await this.authService.authenticate();
@@ -30,12 +32,13 @@ export class AuthTool {
     };
   }
 
-  @Tool({
+  @McpTool({
+    server: 'mcp-google-calendar',
     name: `${PREFIX_TOOL_NAME}checkAuthStatus`,
     description: 'Check the current Google Calendar authentication status of the user.',
-    parameters: z.object({}),
+    input: {},
   })
-  async checkAuthStatus(params: Record<string, never>, context: Context) {
+  async checkAuthStatus(params: Record<string, never>) {
     this.logger.log('Checking authentication status');
     const isAuthenticated = await this.authService.isAuthenticated();
     
@@ -51,3 +54,4 @@ export class AuthTool {
     };
   }
 }
+
