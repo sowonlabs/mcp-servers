@@ -7,6 +7,7 @@ import { GmailTool } from './gmail.tool';
 import { McpController } from './mcp.controller';
 import { parseCliOptions } from "./cli-options";
 import { SERVER_NAME } from './constants';
+import { StderrLogger } from './stderr.logger'; // StderrLogger 임포트
 
 const args = parseCliOptions();
 
@@ -31,11 +32,11 @@ const args = parseCliOptions();
         'https://www.googleapis.com/auth/gmail.modify',
       ],
       logging: {
-        enabled: args.log
+        enabled: false
       }
     }),
   ],
   controllers: [McpController],
-  providers: [GmailTool, GmailService],
+  providers: [GmailTool, GmailService, StderrLogger],
 })
 export class AppModule {}

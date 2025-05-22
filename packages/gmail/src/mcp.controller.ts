@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, HttpCode, UseFilters, Req, Res } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpCode, UseFilters, Req, Res, Logger } from '@nestjs/common';
 import { McpHandler, JsonRpcRequest, JsonRpcExceptionFilter } from '@sowonai/nestjs-mcp-adapter';
 import { Request, Response } from 'express';
 import { SERVER_NAME } from './constants';
@@ -6,26 +6,27 @@ import { SERVER_NAME } from './constants';
 @Controller('mcp')
 @UseFilters(JsonRpcExceptionFilter)
 export class McpController {
-    constructor(
-        private readonly mcpHandler: McpHandler
-    ) {}
+  private readonly logger = new Logger('McpController');
+  constructor(
+      private readonly mcpHandler: McpHandler
+  ) {}
 
-    @Post()
-    @HttpCode(202)
-    async handlePost(@Req() req: Request, @Res() res: Response, @Body() body: any) {
-      const result = await this.mcpHandler.handleRequest(SERVER_NAME, req, res, body);
+  @Post()
+  @HttpCode(202)
+  async handlePost(@Req() req: Request, @Res() res: Response, @Body() body: any) {
 
-      // Notification 요청이거나 응답이 null이면 빈 응답
-      if (result === null) {
-        return res.end();
-      }
+    this.logger.debug(`request body: ${JSON.stringify(body)}`);
+    const result = await this.mcpHandler.handleRequest(SERVER_NAME, req, res, body);
 
-      // 일반 요청에 대한 응답
-      return res.json(result);
+    // Notification 요청이거나 응답이 null이면 빈 응답
+    if (result === null) {
+      return res.end();
     }
 
-    // @Get()
-    // async handleGet(@Req() req: Request, @Res() res: Response, @Body() body: any) {
-    //     await this.mcpHandler.handlePost('mcp-gmail', req, res, body);
-    // }
+    this.logger.debug(`response body: ${JSON.stringify(result)}`);
+
+    // 일반 요청에 대한 응답
+    return res.json(result);
+  }
+
 }

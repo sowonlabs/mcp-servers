@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { StdioExpressAdapter } from '@sowonai/nestjs-mcp-adapter';
 import { Logger } from '@nestjs/common';
 import { parseCliOptions } from "./cli-options";
+import { StderrLogger } from './stderr.logger';
 
 const logger = new Logger('Bootstrap');
 
@@ -11,18 +12,21 @@ const args = parseCliOptions();
 async function bootstrap() {
   try {
     let app;
+    let adapter: StdioExpressAdapter;
 
     if (args.protocol === 'HTTP') {
       app = await NestFactory.create(AppModule, {
         logger: args.log ? ['error', 'warn', 'debug', 'log'] : false
       });
     } else {
-      const adapter = new StdioExpressAdapter('/mcp');
+      adapter = new StdioExpressAdapter('/mcp');
       app = await NestFactory.create(AppModule, adapter, {
-        logger: args.log ? ['error', 'warn', 'debug', 'log'] : false
+        logger: args.log ? new StderrLogger(
+          'GmailServer',
+          { timestamp: true }
+        ) : false,
       });
     }
-
 
     await app.init();
     await app.listen(args.port);
@@ -31,15 +35,33 @@ async function bootstrap() {
     process.on('uncaughtException', (err) => {
       logger.error('Unexpected error occurred:', err);
     });
-    
+
+    const cleanup = async () => {
+      await app.close();
+      if (adapter) {
+        await adapter.close();
+      }
+    }
+
+    process.on('SIGTERM', async () => {
+      logger.log('Shutting down application...');
+      await cleanup();
+      process.exit(0);
+    });
+
+    process.on('SIGKILL', async () => {
+      logger.log('Shutting down application...');
+      await cleanup();
+      process.exit(0);
+    });
+
     process.on('SIGINT', async () => {
       logger.log('Shutting down application...');
-      await app.close();
+      await cleanup();
       process.exit(0);
     });
     
     logger.log('Gmail MCP server initialized successfully');
-    // MCP server handles STDIO streams internally, so don't close the app
     return app;
   } catch (error) {
     logger.error('Error occurred during MCP server initialization:', error);
