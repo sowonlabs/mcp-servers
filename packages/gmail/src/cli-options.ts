@@ -6,6 +6,7 @@ export interface CliOptions {
     port: number;
     log: boolean;
     credentials?: string;
+    install?: boolean;
 }
 
 export function parseCliOptions(): CliOptions {
@@ -33,6 +34,12 @@ export function parseCliOptions(): CliOptions {
                 description: 'Path to credentials.json file',
                 demandOption: false,
                 default: 'credentials.json',
+            },
+            install: {
+                alias: 'i',
+                type: 'boolean',
+                description: 'Run installation flow and print config',
+                default: false,
             },
         })
         .parseSync();

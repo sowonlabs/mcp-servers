@@ -25,11 +25,14 @@
     "build": "nest build",
     "start": "node dist/main.js",
     "dev": "nest start --watch -- --log",
+    "dev:install": "ts-node src/main.ts --install --log",
     "debug": "nest start --debug --watch -- --log",
     "inspector": "npx @modelcontextprotocol/inspector --config inspector.config.json --server google-calendar",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
+    "cli": "npm run build && node dist/main.js --install",
+    "cli:log": "npm run build && node dist/main.js --install --log",
     "prepack": "npm run build && echo '#!/usr/bin/env node' | cat - dist/main.js > temp && mv temp dist/main.js && chmod +x dist/main.js"
   },
   "dependencies": {

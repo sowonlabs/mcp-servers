@@ -25,13 +25,14 @@
     "build": "nest build",
     "start": "node dist/main.js",
     "dev": "dotenv -e .env.test -- nest start --watch -- --log",
+    "dev:install": "ts-node src/main.ts --install --log",
     "debug": "dotenv -e .env.test -- nest start --debug --watch -- --log --protocol HTTP",
     "inspector": "npx @modelcontextprotocol/inspector --config inspector.config.json --server gmail",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "cli:install": "npm run build && node dist/main.js --install",
-    "cli:install:log": "npm run build && node dist/main.js --install --log",
+    "cli": "npm run build && node dist/main.js --install",
+    "cli:log": "npm run build && node dist/main.js --install --log",
     "prepack": "npm run build && echo '#!/usr/bin/env node' | cat - dist/main.js > temp && mv temp dist/main.js && chmod +x dist/main.js"
   },
   "dependencies": {
