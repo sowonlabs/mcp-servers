@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "google-drive": {
+      "command": "node",
+      "args": ["dist/main.js"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "[YOUR_CLIENT_ID]",
+        "GOOGLE_CLIENT_SECRET": "[YOUR_CLIENT_SECRET]",
+        "GOOGLE_REFRESH_TOKEN": "[YOUR_REFRESH_TOKEN]"
+      }
+    }
+  }
+}

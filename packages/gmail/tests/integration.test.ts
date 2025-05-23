@@ -6,9 +6,12 @@ import { fileURLToPath } from 'url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import {
+  InitializeRequest,
+  InitializeResultSchema,
   CallToolRequest,
   CallToolResultSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import * as dotenv from 'dotenv';
 
 const MINUTE = 60_000;
 
@@ -21,6 +24,8 @@ describe('MCP server integration test', () => {
   
   beforeAll(async () => {
     console.log('Starting MCP server...');
+
+    dotenv.config({ path: '../.env.test' });
     
     // Run NestJS build command
     try {
@@ -35,7 +40,7 @@ describe('MCP server integration test', () => {
     }
     
     // Check built JavaScript file path
-    const mainJsPath = path.resolve(__dirname, '../dist/main.js');
+    const mainJsPath = 'dist/main.js';
     
     if (!fs.existsSync(mainJsPath)) {
       throw new Error(`Built file not found: ${mainJsPath}`);
@@ -51,7 +56,11 @@ describe('MCP server integration test', () => {
     transport = new StdioClientTransport({
       command: 'node',
       args: [mainJsPath],
-      cwd: path.resolve(__dirname, '..'),
+      env: {
+        'GOOGLE_CLIENT_ID': process.env.GOOGLE_CLIENT_ID,
+        'GOOGLE_CLIENT_SECRET': process.env.GOOGLE_CLIENT_SECRET,
+        'GOOGLE_REFRESH_TOKEN': process.env.GOOGLE_REFRESH_TOKEN,
+      }
     });
     
     // Connect client and transport
@@ -69,29 +78,20 @@ describe('MCP server integration test', () => {
     }
   });
 
-  it('authenticate tool test', async () => {
-    const request: CallToolRequest = {
-      method: 'tools/call',
+  it('initialize test', async () => {
+    const request: InitializeRequest = {
+      method: 'initialize',
       params: {
-        name: 'gmail_authenticate',
-        arguments: {}
+        protocolVersion: "2025-03-26",
+        capabilities: {},
+        clientInfo: {
+          name: "test",
+          version: "0.1.0"
+        }
       }
     };
-    
-    const response = await client.request(request, CallToolResultSchema);
-    console.log('Response:', response);
-  }, MINUTE);
-  
-  it('checkAuthStatus tool test', async () => {
-    const request: CallToolRequest = {
-      method: 'tools/call',
-      params: {
-        name: 'gmail_checkAuthStatus',
-        arguments: {}
-      }
-    };
-    
-    const response = await client.request(request, CallToolResultSchema);
+
+    const response = await client.request(request, InitializeResultSchema);
     console.log('Response:', response);
   }, MINUTE);
 
@@ -103,7 +103,7 @@ describe('MCP server integration test', () => {
         arguments: {}
       }
     };
-    
+
     const response = await client.request(request, CallToolResultSchema);
     console.log('Response:', response);
   }, MINUTE);

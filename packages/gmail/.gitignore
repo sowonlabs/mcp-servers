@@ -3,3 +3,4 @@
 **/package-lock.json
 sowonai-*.tgz
 credentials.json
+.env*
