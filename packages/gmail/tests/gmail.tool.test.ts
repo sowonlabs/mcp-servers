@@ -3,6 +3,12 @@ import { AppModule } from '../src/app.module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { GmailTool } from "../src/gmail.tool";
+import { CliOptions } from "../src/cli-options";
+
+const args: CliOptions = {
+  protocol: 'STDIO',
+  credentials: 'credentials.json',
+};
 
 describe('GmailTool Test', () => {
   let app: INestApplicationContext;
@@ -10,7 +16,7 @@ describe('GmailTool Test', () => {
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule]
+      imports: [AppModule.forRoot(args)],
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -25,7 +31,7 @@ describe('GmailTool Test', () => {
   });
 
   it('listMessages test', async () => {
-    const result = await gmailTool.listMessages({maxResults: 5}, null);
+    const result = await gmailTool.listMessages({maxResults: 5});
     console.log('Result:', result);
   }, 60_000);
   

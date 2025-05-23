@@ -4,7 +4,7 @@ import { hideBin } from 'yargs/helpers';
 export interface CliOptions {
     protocol: 'STDIO' | 'HTTP';
     port: number;
-    log: boolean;
+    log?: boolean;
     credentials?: string;
     install?: boolean;
 }

@@ -2,21 +2,23 @@
 
 A Model Context Protocol (MCP) server for Google Drive integration.
 
+[![X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/dohapark81)
+[![Threads](https://img.shields.io/badge/Threads-000000?style=for-the-badge&logo=threads&logoColor=white)](https://www.threads.com/@sowonlabs)
+
 ## What is MCP?
 
 MCP (Model Context Protocol) is an open protocol that allows AI assistants, such as Claude Desktop, to interact with external services and tools through a standardized interface. By running this server, you can connect Google Drive to Claude Desktop and manage your files using natural language commands.
 
 ## Features
 
-- List files and folders (listFiles)
-- Get detailed file information (getFileDetails)
-- Create folders (createFolder)
-- Upload files to Google Drive (uploadFile)
-- Download files from Google Drive (downloadFile)
-- Delete files and folders (deleteFile)
-- Share files with specific users or make them publicly accessible (shareFile)
-- Move files between folders (moveFile)
-- Check authentication status (checkAuthStatus)
+- List files and folders (gdrive_listFiles)
+- Get detailed file information (gdrive_getFileDetails)
+- Create folders (gdrive_createFolder)
+- Upload files to Google Drive (gdrive_uploadFile)
+- Download files from Google Drive (gdrive_downloadFile)
+- Delete files and folders (gdrive_deleteFile)
+- Share files with specific users or make them publicly accessible (gdrive_shareFile)
+- Move files between folders (gdrive_moveFile)
 
 ## Installation and Configuration
 

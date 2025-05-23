@@ -2,17 +2,20 @@
 
 A Model Context Protocol (MCP) server for Gmail integration.
 
+[![X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/dohapark81)
+[![Threads](https://img.shields.io/badge/Threads-000000?style=for-the-badge&logo=threads&logoColor=white)](https://www.threads.com/@sowonlabs)
+
 ## What is MCP?
 
 MCP (Model Context Protocol) is an open protocol that allows AI assistants, such as Claude Desktop, to interact with external services and tools through a standardized interface. By running this server, you can connect Gmail to Claude Desktop and manage your emails using natural language commands.
 
 ## Features
 
-- List messages (listMessages)
-- Read message details (readMessage)
-- Send messages (sendMessage)
-- Search messages (searchMessages)
-- Check authentication status (checkAuthStatus)
+- List messages (gmail_listMessages)
+- Read message details (gmail_readMessage)
+- Send messages (gmail_sendMessage)
+- Search messages (gmail_searchMessages)
+- Check authentication status (gmail_checkAuthStatus)
 
 ## Installation and Configuration
 

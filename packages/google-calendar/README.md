@@ -2,15 +2,18 @@
 
 A Model Context Protocol (MCP) server for Google Calendar integration.
 
+[![X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/dohapark81)
+[![Threads](https://img.shields.io/badge/Threads-000000?style=for-the-badge&logo=threads&logoColor=white)](https://www.threads.com/@sowonlabs)
+
 ## What is MCP?
 
 MCP (Model Context Protocol) is an open protocol that allows AI assistants, such as Claude Desktop, to interact with external services and tools through a standardized interface. By running this server, you can connect your Google Calendar to Claude Desktop and manage your schedule using natural language commands.
 
 ## Features
 
-- List calendars (listCalendars)
-- List events (listEvents)
-- Create event (createEvent)
+- List calendars (gcalendar_listCalendars)
+- List events (gcalendar_listEvents)
+- Create event (gcalendar_createEvent)
 
 ## Installation and Configuration
 
