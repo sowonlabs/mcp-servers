@@ -14,7 +14,7 @@ npx @sowonai/mcp-gmail
 
 ### Tool Calls
 ```json
-{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"gmail_authenticate","arguments":{}}}
+{"jsonrpc":"2.0","id":"1","method":"tools/call","params":{"name":"hello","arguments":{}}}
 ```
 
 ```json

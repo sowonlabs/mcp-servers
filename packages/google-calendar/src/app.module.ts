@@ -1,42 +1,52 @@
-import { Module } from '@nestjs/common';
-import { McpModule, McpTransportType } from '@rekog/mcp-nest';
-import { AuthTool } from './auth.tool';
+import { DynamicModule, Module } from '@nestjs/common';
+import { McpAdapterModule } from '@sowonai/nestjs-mcp-adapter';
 import { GoogleOAuthModule, FileSystemTokenRepository } from '@sowonai/nestjs-google-oauth-integration';
 import { CalendarService } from './calendar.service';
 import { CalendarTool } from './calendar.tool';
 import { parseCliOptions } from './cli-options';
-import * as path from 'path';
-import * as os from 'os';
+import { McpController } from './mcp.controller';
+import { CliOptions } from "./cli-options";
+import { SERVER_NAME } from './constants';
+import { StderrLogger } from './stderr.logger';
+import { InstallService } from './install.service';
 
-// Set credentials file path as an environment variable
-const args = parseCliOptions();
+const CALENDAR_SCOPES = [
+  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/calendar.events',
+];
 
-const tokenDir = path.join(os.homedir(), '.sowonai');
-
-@Module({
-  imports: [
-    McpModule.forRoot({
-      name: 'mcp-google-calendar',
-      version: '0.1.0',
-      transport: McpTransportType.STDIO,
-    }),
-    GoogleOAuthModule.forRoot({
-      name: 'mcp-google-calendar',
-      credentialsFilename: args.credentials || 'credentials.json',
-      tokenRepository: new FileSystemTokenRepository({
-        tokenDir: tokenDir,
-        tokenPath: path.join(tokenDir, 'google-calendar-token.json')
-      }),
-      scopes: [
-        'https://www.googleapis.com/auth/calendar',
-        'https://www.googleapis.com/auth/calendar.events',
+@Module({})
+export class AppModule {
+  static forRoot(args: CliOptions): DynamicModule {
+    return {
+      module: AppModule,
+      imports: [
+        McpAdapterModule.forRoot({
+          servers: {
+            [SERVER_NAME]: {
+              version: '0.2.0',
+              instructions: 'Google Calendar integration server for MCP.',
+            }
+          }
+        }),
+        GoogleOAuthModule.forRoot({
+          name: SERVER_NAME,
+          credentialsFilename: args.credentials || 'credentials.json',
+          scopes: CALENDAR_SCOPES,
+          logging: {
+            enabled: args.log || false,
+          }
+        }),
       ],
-      logging: {
-        enabled: args.log
-      }
-    }),
-  ],
-  providers: [AuthTool, CalendarTool, CalendarService],
-})
-export class AppModule {}
+      controllers: [McpController],
+      providers: [
+        CalendarTool,
+        CalendarService,
+        StderrLogger,
+        InstallService,
+      ],
+      exports: [CalendarService],
+    };
+  }
+}
 

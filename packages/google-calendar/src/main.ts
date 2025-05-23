@@ -1,40 +1,87 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { StdioExpressAdapter } from '@sowonai/nestjs-mcp-adapter';
 import { Logger } from '@nestjs/common';
-import { parseCliOptions } from './cli-options';
+import { parseCliOptions } from "./cli-options";
+import { StderrLogger } from './stderr.logger';
+import { InstallService } from './install.service';
+import { SERVER_NAME } from './constants';
 
 const logger = new Logger('Bootstrap');
-
-// Set credentials file path as an environment variable
 const args = parseCliOptions();
 
-// Run in STDIO mode
-async function bootstrapStdio() {
-  const enableLogging = args.log || false;
-  
+async function cli() {
   try {
-    const app = await NestFactory.createApplicationContext(AppModule, {
-      logger: enableLogging ? ['error', 'warn', 'debug', 'log'] : false
-    });
-    
-    // Error handling
+    if (args.install) {
+      if (!args.credentials) {
+        logger.error('Credentials file path is required for auth flow. Please provide it with --credentials <path>');
+        process.exit(1);
+      }
+
+      const app = await NestFactory.createApplicationContext(AppModule.forRoot(args), {
+        logger: args.log ? new StderrLogger('CalendarAuthCli', { timestamp: true }) : false,
+      });
+      
+      const installService = app.get(InstallService);
+      await installService.runInstallScript(SERVER_NAME, '@sowonai/mcp-google-calendar'); // 패키지 이름 수정
+      await app.close();
+      process.exit(0);
+    }
+  } catch (error) {
+    logger.error('Error occurred during MCP server initialization or auth flow:', error);
+    process.exit(1);
+  }
+}
+
+async function bootstrap() {
+  try {
+    let app;
+    let adapter: StdioExpressAdapter;
+
+    if (args.protocol === 'HTTP') { // HTTP 프로토콜 지원 추가
+      app = await NestFactory.create(AppModule.forRoot(args), {
+        logger: args.log ? ['error', 'warn', 'debug', 'log'] : false
+      });
+    } else {
+      adapter = new StdioExpressAdapter('/mcp');
+      app = await NestFactory.create(AppModule.forRoot(args), adapter, {
+        logger: args.log ? new StderrLogger(
+          'CalendarServer',
+          { timestamp: true }
+        ) : false,
+      });
+    }
+
+    await app.init();
+    await app.listen(args.port);
+
     process.on('uncaughtException', (err) => {
       logger.error('Unexpected error occurred:', err);
     });
-    
+
     process.on('SIGINT', async () => {
       logger.log('Shutting down application...');
       await app.close();
       process.exit(0);
     });
+
+    if (args.protocol === 'HTTP') {
+      logger.log(`Application is running on: http://localhost:${args.port}/mcp`);
+    } else {
+      logger.log('Application is running in STDIO mode');
+    }
     
     logger.log('Google Calendar MCP server initialized successfully');
-    // MCP server handles STDIO streams internally, so don't close the app
     return app;
+
   } catch (error) {
-    logger.error('Error occurred during MCP server initialization:', error);
+    logger.error('Error occurred during MCP server initialization or auth flow:', error);
     process.exit(1);
   }
 }
 
-void bootstrapStdio();
+if (args.install) {
+  cli();
+} else {
+  bootstrap();
+}

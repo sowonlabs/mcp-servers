@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Tool, Context } from '@rekog/mcp-nest';
+import { McpTool } from '@sowonai/nestjs-mcp-adapter';
 import { z } from 'zod';
 import { GmailService } from './gmail.service';
-import { PREFIX_TOOL_NAME } from './constants';
+import { PREFIX_TOOL_NAME, SERVER_NAME } from './constants';
 
 @Injectable()
 export class GmailTool {
@@ -12,18 +12,24 @@ export class GmailTool {
     private readonly gmailService: GmailService,
   ) {}
 
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}listMessages`,
     description: 'Search and retrieve Gmail messages for the user. By default, returns the 10 most recent emails.',
-    parameters: z.object({
+    input: {
       maxResults: z.number().describe('Maximum number of results (default: 10)').default(10),
       query: z.string().describe('Gmail search query (e.g., "from:example@gmail.com", "is:unread", "subject:hello")').optional(),
-    }),
+    },
+    annotations: {
+      title: 'List Messages',
+      readOnlyHint: true,
+      desctructiveHint: false
+    }
   })
   async listMessages(params: { 
     maxResults: number;
     query?: string;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to retrieve message list');
     this.logger.log(`Maximum results: ${params.maxResults}`);
     if (params.query) {
@@ -141,14 +147,20 @@ export class GmailTool {
     }
   }
   
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}readMessage`,
     description: 'Retrieve detailed content of a specific email.',
-    parameters: z.object({
+    input: {
       messageId: z.string().describe('ID of the message to retrieve'),
-    }),
+    },
+    annotations: {
+      title: 'Read Messages',
+      readOnlyHint: true,
+      desctructiveHint: false
+    }
   })
-  async readMessage(params: { messageId: string }, context: Context) {
+  async readMessage(params: { messageId: string }) {
     this.logger.log('Starting to retrieve message details');
     this.logger.log(`Message ID: ${params.messageId}`);
     
@@ -276,17 +288,30 @@ export class GmailTool {
       };
     }
   }
+
+  /**
+   * Encode subject for correct handling of Korean characters
+   */
+  private encodeSubject(subject: string): string {
+    return `=?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`;
+  }
   
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}sendMessage`,
     description: 'Compose and send a new email.',
-    parameters: z.object({
+    input: {
       to: z.string().describe('Recipient email address'),
       subject: z.string().describe('Email subject'),
       body: z.string().describe('Email body content'),
       cc: z.string().describe('Carbon copy recipients (CC)').optional(),
       bcc: z.string().describe('Blind carbon copy recipients (BCC)').optional(),
-    }),
+    },
+    annotations: {
+      title: 'Send Message',
+      readOnlyHint: false,
+      desctructiveHint: true
+    }
   })
   async sendMessage(params: {
     to: string;
@@ -294,7 +319,7 @@ export class GmailTool {
     body: string;
     cc?: string;
     bcc?: string;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting to send email');
     this.logger.log(`Recipient: ${params.to}`);
     this.logger.log(`Subject: ${params.subject}`);
@@ -303,10 +328,15 @@ export class GmailTool {
       // Get Gmail client
       const gmail = await this.gmailService.getGmailClient();
       
+      // Encode subject to support Korean characters properly
+      const encodedSubject = this.encodeSubject(params.subject);
+
       // Construct email headers
       let emailLines = [
+        `From: me`,
         `To: ${params.to}`,
-        `Subject: ${params.subject}`
+        `Subject: ${encodedSubject}`,
+        'Content-Type: text/html; charset=UTF-8'
       ];
       
       // Add CC and BCC if provided
@@ -380,18 +410,24 @@ export class GmailTool {
     }
   }
 
-  @Tool({
+  @McpTool({
+    server: SERVER_NAME,
     name: `${PREFIX_TOOL_NAME}searchMessages`,
     description: 'Search for emails using specific criteria.',
-    parameters: z.object({
+    input: {
       query: z.string().describe('Gmail search query (e.g., "from:example@gmail.com", "is:unread", "subject:hello")'),
       maxResults: z.number().describe('Maximum number of results').default(10),
-    }),
+    },
+    annotations: {
+      title: 'Search Messages',
+      readOnlyHint: true,
+      desctructiveHint: false
+    }
   })
   async searchMessages(params: { 
     query: string;
     maxResults: number;
-  }, context: Context) {
+  }) {
     this.logger.log('Starting email search');
     this.logger.log(`Search query: ${params.query}`);
     this.logger.log(`Maximum results: ${params.maxResults}`);

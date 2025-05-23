@@ -1,43 +1,54 @@
-import { Module } from '@nestjs/common';
-import { McpModule, McpTransportType } from '@rekog/mcp-nest';
-import { AuthTool } from './auth.tool';
-import { GoogleOAuthModule, FileSystemTokenRepository } from '@sowonai/nestjs-google-oauth-integration';
+import { DynamicModule, Module } from '@nestjs/common';
+import { DiscoveryModule } from '@nestjs/core';
+import { McpAdapterModule } from '@sowonai/nestjs-mcp-adapter';
+import { GoogleOAuthModule, FileSystemTokenRepository, TokenRepository } from '@sowonai/nestjs-google-oauth-integration';
 import { GmailService } from './gmail.service';
 import { GmailTool } from './gmail.tool';
-import { parseCliOptions } from "./cli-options";
-import * as path from 'path';
-import * as os from 'os';
+import { McpController } from './mcp.controller';
+import { CliOptions } from "./cli-options";
+import { SERVER_NAME } from './constants';
+import { StderrLogger } from './stderr.logger';
+import { InstallService } from './install.service'; // InstallService 임포트 추가
 
-// Set credentials file path as an environment variable
-const args = parseCliOptions();
+const GMAIL_SCOPES = [
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/gmail.compose',
+  'https://www.googleapis.com/auth/gmail.modify',
+];
 
-const tokenDir = path.join(os.homedir(), '.sowonai');
-
-@Module({
-  imports: [
-    McpModule.forRoot({
-      name: 'mcp-gmail',
-      version: '0.1.0',
-      transport: McpTransportType.STDIO,
-    }),
-    GoogleOAuthModule.forRoot({
-      name: 'mcp-gmail',
-      credentialsFilename: args.credentials || 'credentials.json',
-      tokenRepository: new FileSystemTokenRepository({
-        tokenDir: tokenDir,
-        tokenPath: path.join(tokenDir, 'gmail-token.json')
-      }),
-      scopes: [
-        'https://www.googleapis.com/auth/gmail.readonly',
-        'https://www.googleapis.com/auth/gmail.send',
-        'https://www.googleapis.com/auth/gmail.compose',
-        'https://www.googleapis.com/auth/gmail.modify',
+@Module({})
+export class AppModule {
+  static forRoot(args: CliOptions): DynamicModule {
+    return {
+      module: AppModule,
+      imports: [
+        DiscoveryModule,
+        McpAdapterModule.forRoot({
+          servers: {
+            [SERVER_NAME]: {
+              version: '1.0.0',
+              instructions: 'Gmail server: supports read, send, and modify emails.',
+            },
+          }
+        }),
+        GoogleOAuthModule.forRoot({
+          name: SERVER_NAME,
+          credentialsFilename: args.credentials || 'credentials.json',
+          scopes: GMAIL_SCOPES,
+          logging: {
+            enabled: args.log || false,
+          }
+        }),
       ],
-      logging: {
-        enabled: args.log
-      }
-    }),
-  ],
-  providers: [AuthTool, GmailTool, GmailService],
-})
-export class AppModule {}
+      controllers: [McpController],
+      providers: [
+        GmailTool,
+        GmailService,
+        StderrLogger,
+        InstallService,
+      ],
+      exports: [GmailService],
+    };
+  }
+}
