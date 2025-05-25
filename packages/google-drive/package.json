@@ -1,6 +1,6 @@
 {
   "name": "@sowonai/mcp-google-drive",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "description": "A Model Context Protocol (MCP) server for Google Drive integration",
   "main": "dist/main.js",
@@ -41,7 +41,7 @@
     "@nestjs/common": "^11.0.5",
     "@nestjs/core": "^11.0.5",
     "@nestjs/platform-express": "^11.0.5",
-    "@sowonai/nestjs-google-oauth-integration": "^0.1.3",
+    "@sowonai/nestjs-google-oauth-integration": "^0.1.4",
     "@sowonai/nestjs-mcp-adapter": "^0.1.3",
     "googleapis": "^148.0.0",
     "reflect-metadata": "^0.1.13",

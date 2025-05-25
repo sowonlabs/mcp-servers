@@ -15,8 +15,7 @@ export class InstallService {
   async runInstallScript(serverName: string, packageName: string, command: string = "npx"): Promise<void> {
     this.logger.log(`Starting installation script for ${serverName}...`);
     try {
-      const authInfo = await this.googleOAuthService.getOAuthInformationForMcp();
-      const { clientId, clientSecret, refreshToken } = authInfo;
+      const { clientId, clientSecret, refreshToken } = await this.googleOAuthService.authenticateForRefreshToken();
 
       if (!clientId || !clientSecret) {
         const errorMessage = `Could not retrieve client_id or client_secret for ${serverName}.`;
